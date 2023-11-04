@@ -38,8 +38,3 @@ def search_userinfo_from_name(name:str):
 
     for i in c.execute(f'''SELECT * FROM "pcc-users" WHERE name == '{name}' '''):
         print(i)
-
-if __name__ == '__main__':
-    #create_new_user('齋藤直人','s203120@edu.asahikawa-nct.ac.jp',0,'Minecraft7010')
-    #delete_user("齋藤直人")
-    search_userinfo_from_name("齋藤直人")
