@@ -91,7 +91,7 @@ def delete_item(name:str):
     c.close()
 
 #備品を検索(名前から)
-def search_userinfo_from_name(name:str):
+def search_iteminfo_from_name(name:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
 
