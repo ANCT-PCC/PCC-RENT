@@ -1,4 +1,4 @@
-import sqlite3,json,datetime
+import sqlite3,json,datetime,numpy as np
 
 DB_NAME = 'pcc-rent.db'
 
@@ -47,7 +47,7 @@ def search_userinfo_from_name(name:str):
         res = json.loads(json.dumps(i,ensure_ascii=False))
 
     conn.close()
-    return res
+    return res #ユーザーのレコードを配列として返す
 
 #全ユーザー登録情報一覧
 def get_all_users():
@@ -56,12 +56,9 @@ def get_all_users():
     sql = '''
         SELECT * FROM "pcc-users"
     '''
-    res = []
-    for i in c.execute(sql):
-        res = json.dumps(i,ensure_ascii=False)
-
-    conn.close()
-    return res
+    c.execute(sql)
+    res = c.fetchall()
+    return res #ユーザー登録情報を配列として返す
 
 
 #################################################################
@@ -106,7 +103,7 @@ def search_iteminfo_from_name(name:str):
     for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE name == '{name}' '''):
         res = json.loads(json.dumps(i,ensure_ascii=False))
     conn.close()
-    return res
+    return res #備品のレコードを配列として返す
     
 
 #備品を借用(履歴に記録)
