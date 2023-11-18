@@ -41,11 +41,10 @@ def delete_user(name:str):
 def search_userinfo_from_name(name:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
-    info = c.execute(f'''SELECT * FROM "pcc-users" WHERE name == '{name}' ''')
-    res = []
-    for i in info:
-        res = json.loads(json.dumps(i,ensure_ascii=False))
-
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == '{name}' ''')
+    res = c.fetchone()
+    #レコードのフォーマット↓
+    #name,email,isAdmin,solt,passwd,activate_flag,uuid
     conn.close()
     return res #ユーザーのレコードを配列として返す
 
@@ -59,6 +58,24 @@ def get_all_users():
     c.execute(sql)
     res = c.fetchall()
     return res #ユーザー登録情報を配列として返す
+
+#ユーザー登録情報更新
+def update_user_info(uname:str,passwd:str,column:str,new_data:str):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    prev_userinfo = search_userinfo_from_name(uname)
+
+    sql1 = f'''
+        UPDATE "pcc-users" SET "{column}" = "{new_data}" WHERE name = "{uname}"
+    '''
+    c.execute(sql1)
+    conn.commit()
+    
+    new_userinfo = search_userinfo_from_name(uname)
+
+    return prev_userinfo,new_userinfo
+
+
 
 
 #################################################################

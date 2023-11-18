@@ -1,10 +1,8 @@
-import dbc,json
+import dbc,userLoginLib
 
 
-res = dbc.get_all_users()
+res = dbc.search_userinfo_from_name("齋藤直人")
 
-
-for i in range(len(res)):
-    print("\n")
-    for j in range(len(res[0])):
-        print(res[i][j])
+print(res[2])
+print(type(res[0]))
+        
