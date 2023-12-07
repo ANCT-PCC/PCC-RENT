@@ -60,18 +60,18 @@ def get_all_users():
     return res #ユーザー登録情報を配列として返す
 
 #ユーザー登録情報更新
-def update_user_info(uname:str,passwd:str,column:str,new_data:str):
+def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    prev_userinfo = search_userinfo_from_name(uname)
+    prev_userinfo = search_userinfo_from_name(old_uname)
 
     sql1 = f'''
-        UPDATE "pcc-users" SET "{column}" = "{new_data}" WHERE name = "{uname}"
+        UPDATE "pcc-users" SET "{column}" = "{new_data}" WHERE name = "{old_uname}"
     '''
     c.execute(sql1)
     conn.commit()
     
-    new_userinfo = search_userinfo_from_name(uname)
+    new_userinfo = search_userinfo_from_name(old_uname)
 
     return prev_userinfo,new_userinfo
 
