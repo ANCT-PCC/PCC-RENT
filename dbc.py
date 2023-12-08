@@ -138,3 +138,14 @@ def rent_item(name:str,user:str):
     c.execute(sql,data)
     conn.commit()
     conn.close()
+
+#全備品登録情報一覧
+def get_all_items():
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    sql = '''
+        SELECT * FROM "pcc-items"
+    '''
+    c.execute(sql)
+    res = c.fetchall()
+    return res #備品登録情報を配列として返す
