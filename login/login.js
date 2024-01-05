@@ -10,7 +10,6 @@ $login_button.addEventListener('click',(e) => {
     var form_data = [
         {uname: String($form_email.value),
         passwd: String($form_passwd.value),
-        'Access-Control-Allow-Origin': '*',
     }
     ];    
     
