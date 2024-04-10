@@ -85,12 +85,12 @@ def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:s
 #################################################################
 
 #備品を登録する
-def create_new_item(name:str,number:int,desc:str,resource:int,user:str,pic:str):
+def create_new_item(number:int,name:str,desc:str,resource:int,user:str,pic:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
-    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-items"(name,Number,desc,resource,user,pic) ''')
-    data = (name,number,desc,resource,user,pic)
+    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-items"(Number,name,desc,resource,user,pic) ''')
+    data = (number,name,desc,resource,user,pic)
     #テーブルに登録情報を記録
     sql = f'''
         INSERT INTO "pcc-items" VALUES(?,?,?,?,?,?)
