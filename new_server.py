@@ -13,15 +13,15 @@ def home():
 @app.route("/login", methods = ["POST", "GET"])
 def login():
   #データベースに情報を送るとき
-  if request.method == "POST":
-    session.permanent = True  # <--- makes the permanent session
-    user = request.form["nm"] #ユーザー情報を保存する
-    session["user"] = user #sessionにuser情報を保存
-    return redirect(url_for("user"))
-  else: #情報を受け取るとき
-    if "user" in session: #sessionにユーザー情報があったとき
-      return redirect(url_for("user")) #userページに遷移
-    return render_template("login.html") #sessionにユーザー情報がなかったときはloginページに遷移
+  #if request.method == "POST":
+  #  session.permanent = True  # <--- makes the permanent session
+  #  user = request.form["floatingInput"] #ユーザー情報を保存する
+  #  session["user"] = user #sessionにuser情報を保存
+  #  return redirect(url_for("user"))
+  #else: #情報を受け取るとき
+  #  if "user" in session: #sessionにユーザー情報があったとき
+  #    return redirect(url_for("user")) #userページに遷移
+    return render_template('login/login.html') #sessionにユーザー情報がなかったときはloginページに遷移
 
 @app.route("/user")
 def user():
