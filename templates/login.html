@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="ja" data-bs-theme="auto">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<html lang="en" data-bs-theme="auto">
+  <head><script src="{{url_for('static',filename='assets/js/color-modes.js')}}"></script>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.118.2">
-    <title>PCC-RENT 旭川高専パソコン部備品管理システム</title>
+    <meta name="generator" content="Hugo 0.112.5">
+    <title>ログイン/PCC-RENT</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sign-in/">
 
     
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    
 
-<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="{{url_for('static',filename='assets/dist/css/bootstrap.min.css')}}" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -86,22 +86,17 @@
         --bs-btn-active-bg: #5a23c8;
         --bs-btn-active-border-color: #5a23c8;
       }
-
       .bd-mode-toggle {
         z-index: 1500;
-      }
-
-      .bd-mode-toggle .dropdown-menu .active .bi {
-        display: block !important;
       }
     </style>
 
     
     <!-- Custom styles for this template -->
-    <link href="templates/sign-in.css" rel="stylesheet">
+    <link href="{{url_for('static',filename='sign-in.css')}}" rel="stylesheet">
   </head>
   <body class="d-flex align-items-center py-4 bg-body-tertiary">
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
       <symbol id="check2" viewBox="0 0 16 16">
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
       </symbol>
@@ -155,28 +150,30 @@
     
 <main class="form-signin w-100 m-auto">
   <form>
-    <img class="mb-4" src="../assets/anctpcc_背景白.png" alt="" width="72" height="72">
-    <h1 class="h3 mb-3 fw-normal">PCC-RENT<br>旭川高専パソコン部<br>備品管理システム</h1>
+    <img class="mb-4" src="{{url_for('static',filename='assets/brand/bootstrap-logo.svg')}}" alt="" width="72" height="57">
+    <h1 class="h3 mb-3 fw-normal">旭川高専パソコン部<br>備品管理システム<br>「PCC-RENT」<br>ログイン</h1>
 
     <div class="form-floating">
-      <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
-      <label for="floatingInput">ユーザー名(例:s203120)</label>
+      <input type="text" class="form-control" id="floatingInput" placeholder="例: s203120 ">
+      <label for="floatingInput">ユーザ名</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="パスワード">
       <label for="floatingPassword">パスワード</label>
     </div>
 
-    <button class="btn btn-primary w-100 py-2" type="button" id="loginbutton">ログインする</button>
-    <div id="login_status_error" class="mt-3 alert alert-danger" role="alert">
-      A simple danger alert—check it out!
+    <div class="form-check text-start my-3">
+      <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">
+        ログイン情報を覚えとくやつ
+      </label>
     </div>
-    <p class="mt-5 mb-3 text-body-secondary">&copy; 2024 ANCT-PCC
-
-    </p>
+    <button id="loginbutton" class="btn btn-primary w-100 py-2" type="submit">ログイン</button>
+    <p class="mt-5 mb-3 text-body-secondary">&copy; 2024~末永く(⋈◍＞◡＜◍)。✧♡</p>(⋈◍＞◡＜◍)。✧♡
   </form>
 </main>
-<script src="templates/login.js"></script>
+<script src="{{url_for('static',filename='assets/dist/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{url_for('static',filename='login.js')}}"></script>
 
     </body>
 </html>
