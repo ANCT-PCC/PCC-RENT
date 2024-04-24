@@ -14,3 +14,6 @@ DB側で「トークンは有効と判断」した場合は、各操作を実行
 
 サーバ起動時は、初期処理として「全トークンの削除」を行う。
 →専用テーブルの再生成でいい？
+
+pcc_userのDB書式
+name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken

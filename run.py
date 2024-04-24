@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request,make_response
 from datetime import timedelta #時間情報を用いるため
 from datetime import datetime
+import dbc
 
 app = Flask(__name__)
 
@@ -26,6 +27,8 @@ def setlogininfo(uid:str,passwd:str):
 #トークンの有効・無効を確認する
 def checkToken(token:str):
     #DBを参照してくる。
+    dbc.search_userinfo_from_name(uname)
+
     #Trueの場合、usernameは任意の名前
     #Falseの場合、usernameはNone
     username = "None"

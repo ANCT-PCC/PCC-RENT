@@ -13,9 +13,9 @@ def create_new_user(name:str,email:str,isAdmin:int,passwd:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
-    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-users"(name,email,isAdmin,solt,passwd,activate_flag,uuid) ''')
+    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-users"(name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken) ''')
     solt = 'not set'
-    data = (name,email,isAdmin,solt,passwd,0,'not set')
+    data = (name,email,isAdmin,solt,passwd,0,'not set','notoken')
     #テーブルに登録情報を記録
     sql = f'''
         INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?)
@@ -74,6 +74,9 @@ def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:s
     new_userinfo = search_userinfo_from_name(old_uname)
 
     return prev_userinfo,new_userinfo
+
+def cktoken(token:str):
+
 
 
 
