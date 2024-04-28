@@ -27,13 +27,13 @@ def setlogininfo(uid:str,passwd:str):
 #トークンの有効・無効を確認する
 def checkToken(token:str):
     #DBを参照してくる。
-    dbc.search_userinfo_from_name(uname)
+    #dbc.search_userinfo_from_name(uname)
 
     #Trueの場合、usernameは任意の名前
     #Falseの場合、usernameはNone
     username = "None"
 
-    return True , username
+    return False , username
 
 @app.route('/',methods=['GET'])
 def index():
