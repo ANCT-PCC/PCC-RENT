@@ -15,10 +15,10 @@ def create_new_user(name:str,email:str,isAdmin:int,passwd:str):
     #テーブルがなければ作成
     c.execute('''CREATE TABLE IF NOT EXISTS "pcc-users"(name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken) ''')
     solt = 'not set'
-    data = (name,email,isAdmin,solt,passwd,0,'not set','notoken')
+    data = (name,email,isAdmin,solt,passwd,0,'not set','NoToken')
     #テーブルに登録情報を記録
     sql = f'''
-        INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?)
+        INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?)
         EXCEPT
         SELECT * FROM "pcc-users" WHERE name == '{name}'
         '''
@@ -33,7 +33,7 @@ def delete_user(name:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #ユーザー削除
-    c.execute(f'''DELETE FROM "pcc-users" WHERE name == '{name}' ''')
+    c.execute(f'''DELETE FROM "pcc-users" WHERE name == "{name}" ''')
     conn.commit()
     c.close()
 
@@ -41,7 +41,7 @@ def delete_user(name:str):
 def search_userinfo_from_name(name:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == '{name}' ''')
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
     res = c.fetchone()
     #レコードのフォーマット↓
     #name,email,isAdmin,solt,passwd,activate_flag,uuid
@@ -75,19 +75,25 @@ def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:s
 
     return prev_userinfo,new_userinfo
 
+#有効なトークンの有効性検証結果とユーザ名の応答
 def cktoken(token:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE accessToken == '{token}' ''')
-    res = c.fetchone()
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE accessToken == "{token}" ''')
+    res = c.fetchall()
     #レコードのフォーマット↓
     #name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
     conn.close()
 
-    if res[9] == "None" or res[9] != token:
-        return False
+    if len(res) == 0:
+        #print("ヒットなし")
+        return False , "NoUname"
+    elif str(res[0][7]) == "NoToken":
+        #print("トークンなし")
+        return False , "NoUname"
     else:
-        return True
+        uname = res[0][0]
+        return True , str(uname)
 
 
 

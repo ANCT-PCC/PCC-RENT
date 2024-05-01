@@ -2,11 +2,17 @@ from flask import Flask, redirect, url_for, render_template, request,make_respon
 from datetime import timedelta #時間情報を用いるため
 from datetime import datetime
 import dbc
+import random,string
 
+TOKEN_SIZE = 64
 app = Flask(__name__)
 
 app.secret_key = 'user'
 app.permanent_session_lifetime = timedelta(minutes=5) # -> 5分 #(days=5) -> 5日保存
+
+#ランダムトークン生成
+def randomname(TOKEN_SIZE):
+   return ''.join(random.choices(string.ascii_letters + string.digits, k=TOKEN_SIZE))
 
 #ログイン時にトークンを発行
 def setlogininfo(uid:str,passwd:str):
@@ -14,7 +20,7 @@ def setlogininfo(uid:str,passwd:str):
     passwd_flag = True
 
     if passwd_flag == True:
-        content = 'abcdefg0123' #一意のトークン
+        content = randomname(TOKEN_SIZE=TOKEN_SIZE) #一意のトークン
         response = make_response(content)
         max_age = 60*60 #1時間
         expires = int(datetime.now().timestamp())+max_age
@@ -24,22 +30,11 @@ def setlogininfo(uid:str,passwd:str):
     else:
         return None
 
-#トークンの有効・無効を確認する
-def checkToken(token:str):
-    #DBを参照してくる。
-    #dbc.search_userinfo_from_name(uname)
-
-    #Trueの場合、usernameは任意の名前
-    #Falseの場合、usernameはNone
-    username = "None"
-
-    return False , username
-
 @app.route('/',methods=['GET'])
 def index():
     token = request.cookies.get('token',None)
     #token = 'abcd1234'
-    ckFlag,uname = checkToken(token=token)
+    ckFlag,uname = dbc.cktoken(token)
 
     if ckFlag == True:
         return render_template('dashboard.html',uname = uname)
@@ -55,8 +50,9 @@ def login():
         result = setlogininfo(uname,passwd)
         if result == None:
             return 444 #ログインエラーのレス
+        
         token = result
-        tokenflag = checkToken(token=token)
+        tokenflag , uname = dbc.cktoken(token=str(token))
         if(tokenflag == True):
             pass
         elif(tokenflag == False):
@@ -71,6 +67,6 @@ def login():
             return render_template('login.html')
         
         return redirect('/')
-    
+
 
 app.run(port=8080,host="0.0.0.0",debug=True)
