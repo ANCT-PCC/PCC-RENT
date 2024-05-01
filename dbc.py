@@ -76,7 +76,18 @@ def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:s
     return prev_userinfo,new_userinfo
 
 def cktoken(token:str):
-    print("hello")
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE accessToken == '{token}' ''')
+    res = c.fetchone()
+    #レコードのフォーマット↓
+    #name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
+    conn.close()
+
+    if res[9] == "None" or res[9] != token:
+        return False
+    else:
+        return True
 
 
 
