@@ -10,28 +10,41 @@ $login_button.addEventListener('click',(e) => {
 
     var form_data = [
         {uname: String($form_email.value),
-        passwd: String($form_passwd.value),
+        passwd: String($form_passwd.value)
     }
     ];    
+
+    console.log(form_data)
     
     $.ajax(
         {
-          url:'http://localhost:443/login',
+          url:'http://127.0.0.1:8080/login',
           type:'POST',
           data:JSON.stringify(form_data), //ここで辞書型からJSONに変換
           dataType: 'json',
           contentType: 'application/json'
     }).always(function (jqXHR) {
+        console.log("statuscode::")
         console.log(jqXHR.status);
         if(String(jqXHR.status) === "200"){
             //ログイン続行
-        }else if(String(jqXHR.status) === "4545"){
+            login_status_error.style.visibility = "invisible";
+        }else if(String(jqXHR.status) === "444"){
             //入力の修正を求める
-          login_status_error.textContent = "ユーザ名/パスワードに誤りがあります。";
-          login_status_error.style.visibility = "visible";
+            login_status_error.textContent = "ユーザ名/パスワードに誤りがあります。code="+jqXHR.status;
+            login_status_error.style.visibility = "visible";
+        }else if(String(jqXHR.status) === "445"){
+            login_status_error.textContent = "トークンが無効です code="+jqXHR.status;
+            login_status_error.style.visibility = "visible";
+        }else if(String(jqXHR.status) === "446"){
+            login_status_error.textContent = "ユーザ登録がありません code="+jqXHR.status;
+            login_status_error.style.visibility = "visible";
+        }else if(String(jqXHR.status) === "447"){
+            login_status_error.textContent = "正常に処理できませんでした code="+jqXHR.status;
+            login_status_error.style.visibility = "visible";
         }else{
             //入力の修正を求める
-          login_status_error.textContent = "管理者を呼べ。非常事態だ";
+          login_status_error.textContent = "不明なエラー。システム管理者へ問い合わせてください";
           login_status_error.style.visibility = "visible";
         }
     });

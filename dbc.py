@@ -42,7 +42,7 @@ def search_userinfo_from_name(name:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
     c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
-    res = c.fetchone()
+    res = c.fetchall()
     #レコードのフォーマット↓
     #name,email,isAdmin,solt,passwd,activate_flag,uuid
     conn.close()
@@ -60,7 +60,7 @@ def get_all_users():
     return res #ユーザー登録情報を配列として返す
 
 #ユーザー登録情報更新
-def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:str):
+def update_user_info(old_uname:str,column:str,new_data:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     prev_userinfo = search_userinfo_from_name(old_uname)
@@ -76,24 +76,51 @@ def update_user_info(old_uname:str,new_name:str,passwd:str,column:str,new_data:s
     return prev_userinfo,new_userinfo
 
 #有効なトークンの有効性検証結果とユーザ名の応答
-def cktoken(token:str):
+def cktoken(name:str,token:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
+    #ユーザの登録有無
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
+    suser_res = c.fetchall()
+    
+    #トークンがすでに存在しているか
     c.execute(f'''SELECT * FROM "pcc-users" WHERE accessToken == "{token}" ''')
-    res = c.fetchall()
+    token_res = c.fetchall()
+
+    #ログインが正しいか
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name} AND accessToken == {token}"''')
+    usr_token_res = c.fetchall()
     #レコードのフォーマット↓
     #name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
     conn.close()
 
-    if len(res) == 0:
-        #print("ヒットなし")
-        return False , "NoUname"
-    elif str(res[0][7]) == "NoToken":
-        #print("トークンなし")
-        return False , "NoUname"
+    if len(suser_res) == 0:
+        #ユーザ登録なし
+        return False , "Not Submit" ,0
     else:
-        uname = res[0][0]
-        return True , str(uname)
+        if len(token_res) == 0 : #ほかにログインしている可能性あり
+            #nameが存在かつ、NoTokenではないTokenが存在
+            #print("ヒットなし")
+            return False , name
+        elif str(token_res[0][7]) == "NoToken": #ログインなし/トークンの期限切れ
+            #nameが存在かつ、NoTokenである
+            #print("トークンなし")
+            return False , "NoUname",1
+        else:#ユーザのトークンが有効(ログイン状態である)
+            name = token_res[0][0]
+            #トークンの時間制限をリセットする処理を書きたい
+            return True , str(name),2
+
+#トークン更新
+def update_token(uname:str,new_token:str):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    sql1 = f'''
+        UPDATE "pcc-users" SET accessToken = "{new_token}" WHERE name = "{uname}"
+    '''
+    c.execute(sql1)
+    conn.commit()
 
 
 

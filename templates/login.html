@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
   <head><script src="{{url_for('static',filename='assets/js/color-modes.js')}}"></script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -153,6 +152,10 @@
     <img class="mb-4" src="{{url_for('static',filename='pcc-logo.png')}}" alt="" width="72" height="57">
     <h1 class="h3 mb-3 fw-normal">旭川高専パソコン部<br>備品管理システム<br>「PCC-RENT」<br>ログイン</h1>
 
+    <div id="login_status_error" class="alert alert-danger" role="alert">
+      アラートを表示
+    </div>
+
     <div class="form-floating">
       <input type="text" class="form-control" id="floatingInput" placeholder="例: s203120 ">
       <label for="floatingInput">ユーザ名</label>
@@ -168,11 +171,12 @@
         ログイン情報を覚えとくやつ
       </label>
     </div>
-    <button id="loginbutton" class="btn btn-primary w-100 py-2" type="submit">ログイン</button>
+    <button id="loginbutton" type="button" class="btn btn-primary">Primary</button>
     <p class="mt-5 mb-3 text-body-secondary">&copy; 2024~末永く(⋈◍＞◡＜◍)。✧♡</p>(⋈◍＞◡＜◍)。✧♡
   </form>
 </main>
 <script src="{{url_for('static',filename='assets/dist/js/bootstrap.bundle.min.js')}}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script src="{{url_for('static',filename='login.js')}}"></script>
 
     </body>
