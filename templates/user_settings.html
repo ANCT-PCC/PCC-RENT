@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>トップページ/PCC-RENT</title>
+    <title>ユーザ設定:{{uname}}/PCC-RENT</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/dashboard/">
 
@@ -243,7 +243,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-2" href="/my_rental_list">
+              <a class="nav-link d-flex align-items-center gap-2" href="#">
                 <svg class="bi"><use xlink:href="#file-earmark"/></svg>
                 借りている備品
               </a>
@@ -293,29 +293,26 @@
     </div>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <h2 class="mt-5">備品・借用状況一覧</h2>
-      <div class="table-responsive small">
-        <table class="table table-striped table-sm table">
-          <thead>
-            <tr>
-              <th scope="col">備品番号</th>
-              <th scope="col">備品名</th>
-              <th scope="col">説明</th>
-              <th scope="col">財源</th>
-              <th scope="col">借用者</th>
-              <th scope="col">写真</th>
-            </tr>
-          </thead>
-          <tbody id="item-table">
-          </tbody>
-        </table>
+      <h2 class="mt-5">ユーザー設定: {{uname}}</h2>
+      <h5 class="mt-5">パスワードの変更</h5>
+      <input id="currentPWD" class="form-control" type="password" placeholder="現在のパスワード" aria-label="default input example">
+      <br>
+      <input id="newPWD" class="form-control" type="password" placeholder="新しいパスワード" aria-label="default input example">
+      <input id="newPWD_retype" class="form-control mt-1" type="password" placeholder="新しいパスワードの確認" aria-label="default input example">
+      <button id="changePWD_button" type="button" class="btn btn-secondary mt-1">パスワードを変更する</button>
+      <div id="changeSuccess" class="alert alert-success mt-1" role="alert">
+        A simple success alert—check it out!
       </div>
+      <div id="changeFailed" class="alert alert-danger" role="alert">
+        A simple danger alert—check it out!
+      </div>
+
     </main>
   </div>
 </div>
 <script src="{{url_for('static',filename='assets/dist/js/bootstrap.bundle.min.js')}}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js" integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp" crossorigin="anonymous"></script>
-    <script src="{{url_for('static',filename='dashboard.js')}}"></script>
+    <script src="{{url_for('static',filename='user_settings.js')}}"></script>
 
 </html>

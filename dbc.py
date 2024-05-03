@@ -2,6 +2,24 @@ import sqlite3,json,datetime,numpy as np
 
 DB_NAME = 'pcc-rent.db'
 
+#汎用SQL実行
+def sqlExecute(mode:int,sql:str):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute(sql)
+    res=c.fetchall()
+
+    if mode == 1:
+        #書き込みモード
+        print("\n[Notice]\t書き込みモードで実行しました")
+        conn.commit()
+    else:
+        print("\n[Notice]\t書き込みモードで実行していません")
+        pass
+
+    conn.close()
+    return res
+
 #################################################################
 
 #ユーザー関連
@@ -88,7 +106,7 @@ def cktoken(name:str,token:str):
     token_res = c.fetchall()
 
     #ログインが正しいか
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name} AND accessToken == {token}"''')
+    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" AND accessToken == "{token}"''')
     usr_token_res = c.fetchall()
     #レコードのフォーマット↓
     #name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
@@ -96,20 +114,20 @@ def cktoken(name:str,token:str):
 
     if len(suser_res) == 0:
         #ユーザ登録なし
-        return False , "Not Submit" ,0
+        return "Not Submit" ,0
     else:
         if len(token_res) == 0 : #ほかにログインしている可能性あり
             #nameが存在かつ、NoTokenではないTokenが存在
             #print("ヒットなし")
-            return False , name
+            return name,1
         elif str(token_res[0][7]) == "NoToken": #ログインなし/トークンの期限切れ
             #nameが存在かつ、NoTokenである
             #print("トークンなし")
-            return False , "NoUname",1
+            return "NoUname",2
         else:#ユーザのトークンが有効(ログイン状態である)
             name = token_res[0][0]
             #トークンの時間制限をリセットする処理を書きたい
-            return True , str(name),2
+            return str(name),3
 
 #トークン更新
 def update_token(uname:str,new_token:str):

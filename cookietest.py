@@ -6,10 +6,11 @@ app = Flask(__name__)
 @app.route('/login', methods=['GET','POST'])
 def limited_cookie():
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         res = make_response("Setting limited cookie")
-        expire_date = datetime.now() + timedelta(days=2)
-        res.set_cookie('uname', "panda", expires=expire_date, secure=True, httponly=True)
+        #expire_date = datetime.now() + timedelta(days=2)
+        res.set_cookie('uname', 'panda', secure=False, httponly=False)
+        res.set_cookie('uname2', 'panda', secure=False, httponly=False)
         #print(res.delete_cookie('limited_cookie'))
         print(res)
         return res

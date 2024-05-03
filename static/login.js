@@ -3,6 +3,7 @@ const $form_email = document.getElementById("floatingInput");
 const $form_passwd = document.getElementById("floatingPassword");
 const $login_status_error = document.getElementById("login_status_error");
 
+const SERVER_ADDR='http://localhost:8080/'
 $login_status_error.style.visibility = "hidden";
 
 
@@ -18,7 +19,7 @@ $login_button.addEventListener('click',(e) => {
     
     $.ajax(
         {
-          url:'http://127.0.0.1:8080/login',
+          url:SERVER_ADDR+'login',
           type:'POST',
           data:JSON.stringify(form_data), //ここで辞書型からJSONに変換
           dataType: 'json',
@@ -28,7 +29,8 @@ $login_button.addEventListener('click',(e) => {
         console.log(jqXHR.status);
         if(String(jqXHR.status) === "200"){
             //ログイン続行
-            login_status_error.style.visibility = "invisible";
+            login_status_error.style.visibility = "hidden";
+            window.location.href = 'http://localhost:8080/';
         }else if(String(jqXHR.status) === "444"){
             //入力の修正を求める
             login_status_error.textContent = "ユーザ名/パスワードに誤りがあります。code="+jqXHR.status;
