@@ -251,11 +251,11 @@
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center gap-2" href="/pcc-items">
                 <svg class="bi"><use xlink:href="#cart"/></svg>
-                パソコン部の備品リスト
+                備品を借りる
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-2" href="#">
+              <a class="nav-link d-flex align-items-center gap-2" href="/members">
                 <svg class="bi"><use xlink:href="#people"/></svg>
                 部員
               </a>
@@ -301,8 +301,9 @@
               <th scope="col">備品番号</th>
               <th scope="col">備品名</th>
               <th scope="col">借用用途</th>
+              <th scope="col">借りた日時</th>
               <th scope="col">返却期限</th>
-              <th scope="col">写真</th>
+              <th scope="col">返却状況</th>
             </tr>
           </thead>
           <tbody id="item-table">
@@ -316,5 +317,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js" integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp" crossorigin="anonymous"></script>
     <script src="{{url_for('static',filename='my_rental_list.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
 </html>

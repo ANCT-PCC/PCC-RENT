@@ -8,7 +8,10 @@ $login_status_error.style.visibility = "hidden";
 
 
 $login_button.addEventListener('click',(e) => {
-
+    if ($form_email.value == '' || $form_passwd.value == ''){
+        $login_status_error.textContent = 'ユーザ名/パスワードを入力してください';
+        $login_status_error.style.visibility = 'visible';
+    }else{
     var form_data = [
         {uname: String($form_email.value),
         passwd: String($form_passwd.value)
@@ -50,5 +53,6 @@ $login_button.addEventListener('click',(e) => {
           login_status_error.style.visibility = "visible";
         }
     });
+    }
 
 });

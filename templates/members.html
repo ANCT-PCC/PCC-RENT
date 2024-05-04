@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>トップページ/PCC-RENT</title>
+    <title>部員/PCC-RENT</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/dashboard/">
 
@@ -293,19 +293,15 @@
     </div>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <h2 class="mt-5">全ユーザの備品借用と返却の履歴</h2>
+      <h2 class="mt-5">パソコン部 部員一覧</h2>
       <div class="table-responsive small">
         <table class="table table-striped table-sm table">
           <thead>
             <tr>
-              <th scope="col">備品番号</th>
-              <th scope="col">備品名</th>
-              <th scope="col">用途</th>
-              <th scope="col">借用者</th>
-              <th scope="col">借りた日時</th>
-              <th scope="col">期限</th>
-              <th scope="col">状況</th>
-              
+              <th scope="col">部員名</th>
+              <th scope="col">ユーザ名</th>
+              <th scope="col">学年・クラス</th>
+              <th scope="col">備考</th>
             </tr>
           </thead>
           <tbody id="item-table">
@@ -318,7 +314,7 @@
 <script src="{{url_for('static',filename='assets/dist/js/bootstrap.bundle.min.js')}}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js" integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp" crossorigin="anonymous"></script>
-    <script src="{{url_for('static',filename='dashboard.js')}}"></script>
+    <script src="{{url_for('static',filename='members.js')}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
 </html>

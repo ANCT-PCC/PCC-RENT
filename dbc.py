@@ -2,6 +2,10 @@ import sqlite3,json,datetime,numpy as np
 
 DB_NAME = 'pcc-rent.db'
 
+INIT_SQL_COMMAND = '''CREATE TABLE IF NOT EXISTS "pcc-users"(display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,class,discord) '''
+INIT_SQL_COMMAND_2 = '''CREATE TABLE IF NOT EXISTS "pcc-items"(number,item_name,desc,resource,rental,picture,rental_id) '''
+INIT_SQL_COMMAND_3 = '''CREATE TABLE IF NOT EXISTS "pcc-rental"(number,item_name,use,rentby,rent,deadline,returned,rental_id) '''
+
 #汎用SQL実行
 def sqlExecute(mode:int,sql:str):
     conn = sqlite3.connect(DB_NAME)
@@ -27,16 +31,27 @@ def sqlExecute(mode:int,sql:str):
 #################################################################
 
 #新規ユーザを作成する
-def create_new_user(name:str,email:str,isAdmin:int,passwd:str):
+def create_new_user(display_name:str,name:str,email:str,isAdmin:int,passwd:str,grade:int,user_class:int,discord:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
-    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-users"(name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken) ''')
+    c.execute(INIT_SQL_COMMAND)
     solt = 'not set'
-    data = (name,email,isAdmin,solt,passwd,0,'not set','NoToken')
+    if user_class == 11:
+        classstr = 'M'
+    elif user_class == 21:
+        classstr = 'E'
+    elif user_class == 31:
+        classstr = 'S'
+    elif classstr == 41:
+        classstr = 'C'
+    else:
+        classstr = 'Undefined_Class'
+
+    data = (display_name,name,email,isAdmin,solt,passwd,0,'not set','NoToken',str(grade),classstr,discord)
     #テーブルに登録情報を記録
     sql = f'''
-        INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?)
+        INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
         EXCEPT
         SELECT * FROM "pcc-users" WHERE name == '{name}'
         '''
@@ -120,12 +135,12 @@ def cktoken(name:str,token:str):
             #nameが存在かつ、NoTokenではないTokenが存在
             #print("ヒットなし")
             return name,1
-        elif str(token_res[0][7]) == "NoToken": #ログインなし/トークンの期限切れ
+        elif str(token_res[0][8]) == "NoToken": #ログインなし/トークンの期限切れ
             #nameが存在かつ、NoTokenである
             #print("トークンなし")
             return "NoUname",2
         else:#ユーザのトークンが有効(ログイン状態である)
-            name = token_res[0][0]
+            name = token_res[0][1]
             #トークンの時間制限をリセットする処理を書きたい
             return str(name),3
 
@@ -150,17 +165,17 @@ def update_token(uname:str,new_token:str):
 #################################################################
 
 #備品を登録する
-def create_new_item(number:int,name:str,desc:str,resource:int,user:str,pic:str):
+def create_new_item(number:str,name:str,desc:str,resource:int,rental:str,picture:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
-    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-items"(Number,name,desc,resource,user,pic) ''')
-    data = (number,name,desc,resource,user,pic)
+    c.execute(INIT_SQL_COMMAND_2)
+    data = (number,name,desc,resource,rental,picture,'NoSet')
     #テーブルに登録情報を記録
     sql = f'''
-        INSERT INTO "pcc-items" VALUES(?,?,?,?,?,?)
+        INSERT INTO "pcc-items" VALUES(?,?,?,?,?,?,?)
         EXCEPT
-        SELECT * FROM "pcc-items" WHERE name == '{name}'
+        SELECT * FROM "pcc-items" WHERE number == '{number}'
         '''
     c.execute(sql,data)
     #コミット(変更を反映)
@@ -169,11 +184,11 @@ def create_new_item(number:int,name:str,desc:str,resource:int,user:str,pic:str):
     return 0
 
 #備品を削除
-def delete_item(name:str):
+def delete_item(number:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #備品削除
-    c.execute(f'''DELETE FROM "pcc-items" WHERE name == '{name}' ''')
+    c.execute(f'''DELETE FROM "pcc-items" WHERE number == '{number}' ''')
     conn.commit()
     c.close()
 
@@ -182,27 +197,104 @@ def search_iteminfo_from_name(name:str):
     conn = sqlite3.connect(DB_NAME)
     c=conn.cursor()
     res =[]
-    for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE name == '{name}' '''):
+    for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE item_name == '{name}' '''):
         res = json.loads(json.dumps(i,ensure_ascii=False))
+    conn.close()
+    return res #備品のレコードを配列として返す
+
+#備品を検索(備品番号から)
+def search_iteminfo_from_number(number:str):
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    res =[]
+    for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE number == '{number}' '''):
+        res = json.loads(json.dumps(i,ensure_ascii=False))
+    conn.close()
+    return res #備品のレコードを配列として返す
+
+#ユーザの貸し出し備品を検索(備品番号から)
+def search_userrentalinfo_from_number(number:str):
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    res =[]
+    c.execute(f'''SELECT * FROM "pcc-rental" WHERE number == '{number}' ''')
+    res = c.fetchall()
     conn.close()
     return res #備品のレコードを配列として返す
     
 
 #備品を借用(履歴に記録)
-def rent_item(name:str,user:str):
+def rent_item(item_number:str,item_name:str,use:str,rentby:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
-    c.execute('''CREATE TABLE IF NOT EXISTS "pcc-rental"(name,user,rent_date,return_date) ''')
-    sql = '''
-        INSERT INTO "pcc-rental" VALUES(?,?,?,?)
+    c.execute(INIT_SQL_COMMAND_3)
+    #res =[]
+    c.execute(f'''SELECT * FROM "pcc-rental" WHERE number == '{item_number}' AND returned == '貸し出し中' AND rental_id == 'NotSet' ''')
+    res = c.fetchall()
+
+    print(len(res))
+    if len(res)==0:
+        sql = f'''
+            INSERT INTO "pcc-rental" VALUES(?,?,?,?,?,?,?,?)
+        '''
+        timestamp = datetime.datetime.now()
+        deadline = timestamp + datetime.timedelta(days=14)
+        rental_id = timestamp.strftime('%Y%m%d%H%M%S') #借用番号はタイムスタンプベースで生成
+        data = (item_number,item_name,use,rentby,timestamp.strftime('%Y年%m月%d日 %H:%M'),deadline.strftime('%Y年%m月%d日'),'貸し出し中',rental_id)
+        c.execute(sql,data)
+        sql2 = f'''
+            UPDATE "pcc-items" SET rental = '{rentby}' AND rental_id = '{rental_id}' WHERE number = '{item_number}'
+        '''
+        c.execute(sql2)
+        conn.commit()
+        conn.close()
+
+        return 0
+    else:
+        print(f"借用が重複している可能性があります: {item_number}")
+        conn.commit()
+        conn.close()
+
+        return -1
+
+#備品を返却(履歴に記録)
+def return_item(rental_id:str):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    timestamp = datetime.datetime.now()
+    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:{timestamp.strftime('%Y年%m月%d日 %H:%M')}' AND rental = 'なし' WHERE rental_id == '{rental_id}' ''')
+    
+    sql3 = f'''
+        UPDATE "pcc-items" SET rental = 'なし' AND rental_id = 'NoSet' WHERE rental_id = '{rental_id}'
     '''
-    rent_date = datetime.datetime.now()
-    return_date = rent_date + datetime.timedelta(days=14)
-    data = (name,user,rent_date.strftime('%Y年%m月%d日 %H:%M'),return_date.strftime('%Y年%m月%d日 %H:%M'))
-    c.execute(sql,data)
+    c.execute(sql3)
     conn.commit()
     conn.close()
+
+    return 0
+
+#借りられている備品を検索
+def get_rent_items():
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    sql = '''
+        SELECT * FROM "pcc-rental"
+    '''
+    c.execute(sql)
+    res = c.fetchall()
+    return res #備品登録情報を配列として返す
+
+#ユーザが借りている備品を検索
+def sarch_rent_items(uname:str):
+    conn = sqlite3.connect(DB_NAME)
+    c=conn.cursor()
+    sql = f'''
+        SELECT * FROM "pcc-rental" WHERE rentby == "{uname}"
+    '''
+    c.execute(sql)
+    res = c.fetchall()
+    return res #備品登録情報を配列として返す
 
 #全備品登録情報一覧
 def get_all_items():

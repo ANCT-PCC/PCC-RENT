@@ -16,7 +16,7 @@ DB側で「トークンは有効と判断」した場合は、各操作を実行
 →専用テーブルの再生成でいい？
 
 pcc_userのDB書式
-name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
+display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,class,discord
 
 アクセストークンの形式
 ランダムに生成した文字列
@@ -25,3 +25,13 @@ name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
 トークンの生成はサーバ側で行う。
 →ログイン成功時にクライアントへクッキーとして保存
 一定時間経過時にDBからトークン情報を削除
+
+パスワードを忘れた場合の処理
+何かフォームが欲しい。
+もしくは、自分でパスワードリセットができるとか
+→学校GmailもしくはDiscordDMに対してワンタイムパスワードを送信とか
+
+備品リストのレコード
+number,item_name,desc,resource,rental,picture
+借りている備品リストのレコード
+number,item_name,use,rentby,rent,deadline,returned
