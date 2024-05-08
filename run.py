@@ -139,9 +139,9 @@ def user_settings():
             newPWD = request.json[0]['newPWD']
 
             uinfo = dbc.search_userinfo_from_name(uname)
-            if uinfo[0][4] != currentPWD:
+            if uinfo[0][5] != currentPWD:
                 return "444",444
-            elif uinfo[0][4] == currentPWD:
+            elif uinfo[0][5] == currentPWD:
                 #パスワード変更処理
                 previnfo,newinfo = dbc.update_user_info(uname,'passwd',newPWD)
                 newuinfo = dbc.search_userinfo_from_name(uname)

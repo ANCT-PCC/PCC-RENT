@@ -35,3 +35,15 @@ display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,clas
 number,item_name,desc,resource,rental,picture
 借りている備品リストのレコード
 number,item_name,use,rentby,rent,deadline,returned
+
+貸し出し、返却ボタンについて
+・全てのテーブルを対象に一度追加する
+・その後にgetElementbyId()をして、全ボタンを取得
+・状況が想定する状態の場合にvisiblityをvisibleに変更
+動作について(返却)
+・クリックした瞬間、DBからrental_idから情報を引っ張ってきて
+　モーダルを用いて画面に返却備品の情報を表示
+・モーダルの中の「返却する」を押すと、返却処理が行われる
+動作について(貸し出し)
+・クリックした瞬間、対象の備品情報を取得してモーダルに表示
+・「借りる」ボタンを押すとDBの書き換え処理が行われる

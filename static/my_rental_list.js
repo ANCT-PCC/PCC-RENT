@@ -21,6 +21,7 @@ window.onload = function(){
         for (i = 0; i < res.length; i++){
           //tr エレメントを新規作成(ただ生成するだけ)
           var tr = document.createElement('tr');
+          
           //列(td)用のループ
           for (j = 0; j < 6; j++){
               //tdエレメントをを生成
@@ -38,8 +39,7 @@ window.onload = function(){
                 td.innerHTML = res[i]['deadline']
               }else if(j==5){
                 if(res[i]['returned'] == '貸し出し中'){
-                  td.innerHTML = res[i]['returned']+"<br>"+"<button type='button' class='btn btn-primary'>返却</button>"; 
-                  
+                  td.innerHTML = res[i]['returned']+"<br>"+"<button type='button' class='btn btn-primary'>返却</button>";
                 }else{
                   td.innerHTML = 'insertError'
                 }
@@ -47,6 +47,7 @@ window.onload = function(){
               }
               //生成したtdをtrにセット
               tr.appendChild(td);
+              
           }//列用のループ閉じ
           //tr エレメントをtbody内に追加(ここではじめて表示される)
           tbody.appendChild(tr);

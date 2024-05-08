@@ -77,7 +77,7 @@ def search_userinfo_from_name(name:str):
     c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
     res = c.fetchall()
     #レコードのフォーマット↓
-    #name,email,isAdmin,solt,passwd,activate_flag,uuid
+    #display,name,email,isAdmin,solt,passwd,activate_flag,uuid
     conn.close()
     return res #ユーザーのレコードを配列として返す
 
