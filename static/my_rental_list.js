@@ -1,6 +1,8 @@
 const SERVER_ADDR = 'http://localhost:8080/'
 const $logout_button = document.getElementById('logout_button');
 
+var list = [];
+
 
 /*ページ(DOM)読み込み後に実行*/
 window.onload = function(){
@@ -17,6 +19,8 @@ window.onload = function(){
       }).done(function(json){
         var data=JSON.stringify(json);
         var res = JSON.parse(data);
+
+        console.log("うんこ"+list)
 
         for (i = 0; i < res.length; i++){
           //tr エレメントを新規作成(ただ生成するだけ)
@@ -38,12 +42,7 @@ window.onload = function(){
               }else if(j==4){
                 td.innerHTML = res[i]['deadline']
               }else if(j==5){
-                if(res[i]['returned'] == '貸し出し中'){
-                  td.innerHTML = res[i]['returned']+"<br>"+"<button type='button' class='btn btn-primary'>返却</button>";
-                }else{
-                  td.innerHTML = 'insertError'
-                }
-                
+                td.innerHTML = res[i]['returned']+"<br>"+"<button id='"+"return_button"+String(i)+"' type='button' class='btn btn-primary'>返却</button>"
               }
               //生成したtdをtrにセット
               tr.appendChild(td);
@@ -53,6 +52,14 @@ window.onload = function(){
           tbody.appendChild(tr);
   
         }//行用のループ閉じ
+        
+        //貸し出し中以外の表示をしている場合、ボタンを非表示に
+        for(i=0;i<res.length;i++){
+          if(res[i]['returned'] != '貸し出し中'){
+            console.log(res)
+            document.getElementById('return_button'+String(i)).style.visibility = 'hidden'
+          }
+        }
 
       }).fail(function(){
         console.log("failed")
