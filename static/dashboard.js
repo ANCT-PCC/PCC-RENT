@@ -39,7 +39,7 @@ window.onload = function(){
               }else if(j==5){
                 td.innerHTML = res[i]['deadline']
               }else if(j==6){
-                td.innerHTML = res[i]['returned']
+                td.innerHTML = "<a id='item"+String(i)+"'>"+res[i]['returned']+"</a>"
               }
               //生成したtdをtrにセット
               tr.appendChild(td);
@@ -48,6 +48,15 @@ window.onload = function(){
           tbody.appendChild(tr);
   
         }//行用のループ閉じ
+
+        //文字の色付け
+        for(i=0;i<res.length;i++){
+          if(res[i]['returned'] != '貸し出し中'){
+            document.getElementById('item'+String(i)).style.color = 'green'
+          }else if(res[i]['returned'] == '貸し出し中'){
+            document.getElementById('item'+String(i)).style.color = 'orange'
+          }
+        }
 
       }).fail(function(){
         console.log("failed")

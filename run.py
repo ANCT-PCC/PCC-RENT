@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 #初期化処理
 def init():
+    #すべてのトークンを無効化
     command='''UPDATE "pcc-users" SET accessToken = "NoToken" WHERE accessToken != "NoToken"'''
     conn = sqlite3.connect(dbc.DB_NAME)
     c = conn.cursor()
@@ -236,6 +237,7 @@ def show_my_rental_list():
             dict['rent']=str(res[flag][4])
             dict['deadline']=str(res[flag][5])
             dict['returned']=str(res[flag][6])
+            dict['rental_id']=str(res[flag][7])
             rental_info.append(dict)
 
         return json.dumps(rental_info)
@@ -313,6 +315,24 @@ def show_pcc_items():
             item_info.append(dict)
 
         return json.dumps(item_info)
+    
+@app.route('/return_item',methods=['POST'])
+def return_item():
+    uname = request.cookies.get('uname')
+    token = request.cookies.get('token')
+
+    uname,login_status = dbc.cktoken(uname,token)
+    if login_status != 3:
+        return redirect('/login')
+    else:
+        rental_id = request.json[0]['rental_id']
+        print(f"ランニング：{rental_id}")
+        res = dbc.return_item(rental_id=rental_id)
+        if res == 0:
+            return "OK",200
+        else:
+            return "ERROR",400
 
 init()
+print("Access: http://localhost:8080/")
 app.run(port=8080,host="0.0.0.0",debug=True)

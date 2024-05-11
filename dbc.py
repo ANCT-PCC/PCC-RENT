@@ -263,12 +263,17 @@ def return_item(rental_id:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     timestamp = datetime.datetime.now()
-    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:{timestamp.strftime('%Y年%m月%d日 %H:%M')}' AND rental = 'なし' WHERE rental_id == '{rental_id}' ''')
+    print(rental_id)
+    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id == '{rental_id}' ''')
     
     sql3 = f'''
-        UPDATE "pcc-items" SET rental = 'なし' AND rental_id = 'NoSet' WHERE rental_id = '{rental_id}'
+        UPDATE "pcc-items" SET rental = 'なし' WHERE rental_id = '{rental_id}'
+    '''
+    sql4 = f'''
+        UPDATE "pcc-items" SET rental_id = 'NoSet' WHERE rental_id = '{rental_id}'
     '''
     c.execute(sql3)
+    c.execute(sql4)
     conn.commit()
     conn.close()
 

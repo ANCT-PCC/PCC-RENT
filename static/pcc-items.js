@@ -35,12 +35,7 @@ window.onload = function(){
               }else if(j==3){
                 td.innerHTML = res[i]['resource']
               }else if(j==4){
-                if(res[i]['rental']=='なし'){
-                  td.innerHTML = 'なし'+'<br>'+"<button type='button' class='btn btn-primary'>借りる</button>"
-                }else{
-                  td.innerHTML = 'insertError'
-                }
-                
+                td.innerHTML = res[i]['rental']+"</a>"+'<br>'+"<button id='rental_button"+String(i)+"' type='button' class='btn btn-primary'>借りる</button>"
               }else if(j==5){
                 td.innerHTML = res[i]['picture']
               }
@@ -51,6 +46,13 @@ window.onload = function(){
           tbody.appendChild(tr);
   
         }//行用のループ閉じ
+
+        //すでに貸出していれば、「借りる」ボタンを非表示にする
+        for(i=0;i<res.length;i++){
+          if(res[i]['rental'] != 'なし'){
+            document.getElementById('rental_button'+String(i)).style.visibility = 'hidden';
+          }
+        }
 
       }).fail(function(){
         console.log("failed")

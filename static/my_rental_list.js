@@ -20,14 +20,12 @@ window.onload = function(){
         var data=JSON.stringify(json);
         var res = JSON.parse(data);
 
-        console.log("うんこ"+list)
-
         for (i = 0; i < res.length; i++){
           //tr エレメントを新規作成(ただ生成するだけ)
           var tr = document.createElement('tr');
           
           //列(td)用のループ
-          for (j = 0; j < 6; j++){
+          for (j = 0; j < 7; j++){
               //tdエレメントをを生成
               var td = document.createElement('td');
               //tdの中に入れたいモノをセット
@@ -42,7 +40,9 @@ window.onload = function(){
               }else if(j==4){
                 td.innerHTML = res[i]['deadline']
               }else if(j==5){
-                td.innerHTML = res[i]['returned']+"<br>"+"<button id='"+"return_button"+String(i)+"' type='button' class='btn btn-primary'>返却</button>"
+                td.innerHTML = "<a id='item"+String(i)+"'>"+res[i]['returned']+"</a>"+"<br>"+"<button id='"+"return_button"+String(i)+"' type='button' class='btn btn-primary'>返却</button>"
+              }else if(j==6){
+                td.innerHTML = "<a id='rental_id"+String(i)+"'>"+res[i]['rental_id']
               }
               //生成したtdをtrにセット
               tr.appendChild(td);
@@ -56,9 +56,29 @@ window.onload = function(){
         //貸し出し中以外の表示をしている場合、ボタンを非表示に
         for(i=0;i<res.length;i++){
           if(res[i]['returned'] != '貸し出し中'){
-            console.log(res)
+            document.getElementById('item'+String(i)).style.color = 'green'
             document.getElementById('return_button'+String(i)).style.visibility = 'hidden'
+          }else if(res[i]['returned'] == '貸し出し中'){
+            document.getElementById('item'+String(i)).style.color = 'orange'
           }
+
+          document.getElementById('return_button'+String(i)).addEventListener('click',(e)=>{
+            console.log("作動")
+            var number = e.target.id[13]
+            var iteminfo = [{
+              rental_id: document.getElementById("rental_id"+number).textContent
+            }]
+            $.ajax(
+              {
+                url:SERVER_ADDR+'return_item',
+                type:'POST',
+                data:JSON.stringify(iteminfo), //ここで辞書型からJSONに変換
+                dataType: 'json',
+                contentType: 'application/json'
+              }).always(function(){
+                location.reload()
+              })
+          })
         }
 
       }).fail(function(){
