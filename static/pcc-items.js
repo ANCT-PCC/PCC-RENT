@@ -27,7 +27,7 @@ window.onload = function(){
               var td = document.createElement('td');
               //tdの中に入れたいモノをセット
               if(j == 0){
-                td.innerHTML = res[i]['number']
+                td.innerHTML = "<a id='item_number"+String(i)+"'>"+res[i]['number']+"</a>"
               }else if(j== 1){
                 td.innerHTML = res[i]['item_name']
               }else if(j==2){
@@ -35,7 +35,7 @@ window.onload = function(){
               }else if(j==3){
                 td.innerHTML = res[i]['resource']
               }else if(j==4){
-                td.innerHTML = res[i]['rental']+"</a>"+'<br>'+"<button id='rental_button"+String(i)+"' type='button' class='btn btn-primary'>借りる</button>"
+                td.innerHTML = res[i]['rental']+'<br>'+"<button id='rental_button"+String(i)+"' type='button' class='btn btn-primary'>借りる</button>"
               }else if(j==5){
                 td.innerHTML = res[i]['picture']
               }
@@ -52,7 +52,28 @@ window.onload = function(){
           if(res[i]['rental'] != 'なし'){
             document.getElementById('rental_button'+String(i)).style.visibility = 'hidden';
           }
+
+          document.getElementById('rental_button'+String(i)).addEventListener('click',(e)=>{
+            console.log("動作")            
+            var number = e.target.id[13]
+            var iteminfo = [{
+              item_number: document.getElementById("item_number"+number).textContent
+            }]
+            $.ajax(
+              {
+                url:SERVER_ADDR+'rental_item',
+                type:'POST',
+                data:JSON.stringify(iteminfo), //ここで辞書型からJSONに変換
+                dataType: 'json',
+                contentType: 'application/json'
+              }).always(function(){
+                location.reload()
+              })
+          })
         }
+        
+
+        
 
       }).fail(function(){
         console.log("failed")

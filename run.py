@@ -326,8 +326,27 @@ def return_item():
         return redirect('/login')
     else:
         rental_id = request.json[0]['rental_id']
-        print(f"ランニング：{rental_id}")
         res = dbc.return_item(rental_id=rental_id)
+        if res == 0:
+            return "OK",200
+        else:
+            return "ERROR",400
+        
+@app.route('/rental_item',methods=['POST'])
+def rental_item():
+    uname = request.cookies.get('uname')
+    token = request.cookies.get('token')
+
+    uname,login_status = dbc.cktoken(uname,token)
+    if login_status != 3:
+        return redirect('/login')
+    else:
+        item_number = request.json[0]['item_number']
+        item_name = dbc.search_iteminfo_from_number(item_number)[1]
+        print("アイテムの名前"+item_name)
+        use = '未記載'
+        res = dbc.rent_item(item_number,item_name,use,uname)
+
         if res == 0:
             return "OK",200
         else:

@@ -1,6 +1,8 @@
-import sqlite3,json,datetime,numpy as np
+import sqlite3,json,datetime
+import random,string
 
 DB_NAME = 'pcc-rent.db'
+TOKEN_SIZE = 64
 
 INIT_SQL_COMMAND = '''CREATE TABLE IF NOT EXISTS "pcc-users"(display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,class,discord) '''
 INIT_SQL_COMMAND_2 = '''CREATE TABLE IF NOT EXISTS "pcc-items"(number,item_name,desc,resource,rental,picture,rental_id) '''
@@ -240,13 +242,17 @@ def rent_item(item_number:str,item_name:str,use:str,rentby:str):
         '''
         timestamp = datetime.datetime.now()
         deadline = timestamp + datetime.timedelta(days=14)
-        rental_id = timestamp.strftime('%Y%m%d%H%M%S') #借用番号はタイムスタンプベースで生成
+        rental_id = ''.join(random.choices(string.ascii_letters + string.digits, k=TOKEN_SIZE))
         data = (item_number,item_name,use,rentby,timestamp.strftime('%Y年%m月%d日 %H:%M'),deadline.strftime('%Y年%m月%d日'),'貸し出し中',rental_id)
         c.execute(sql,data)
         sql2 = f'''
-            UPDATE "pcc-items" SET rental = '{rentby}' AND rental_id = '{rental_id}' WHERE number = '{item_number}'
+            UPDATE "pcc-items" SET rental = '{rentby}' WHERE number = '{item_number}'
+        '''
+        sql3 = f'''
+            UPDATE "pcc-items" SET rental_id = '{rental_id}' WHERE number = '{item_number}'
         '''
         c.execute(sql2)
+        c.execute(sql3)
         conn.commit()
         conn.close()
 

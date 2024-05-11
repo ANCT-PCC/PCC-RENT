@@ -63,7 +63,6 @@ window.onload = function(){
           }
 
           document.getElementById('return_button'+String(i)).addEventListener('click',(e)=>{
-            console.log("作動")
             var number = e.target.id[13]
             var iteminfo = [{
               rental_id: document.getElementById("rental_id"+number).textContent
