@@ -3,6 +3,7 @@ import dbc
 import random,string
 import sqlite3
 import json
+import hashlib
 
 TOKEN_SIZE = 64
 
@@ -47,7 +48,7 @@ def login():
     if request.method == 'POST':
         res = request.json[0]
         uname = res['uname']
-        passwd = res['passwd']
+        passwd = hashlib.sha256(res['passwd'].encode("utf-8")).hexdigest()
         print(f"{uname} , {passwd}")
         
         uinfo = dbc.search_userinfo_from_name(uname)
@@ -136,8 +137,8 @@ def user_settings():
         if login_status != 3:
             return redirect('/login')
         else:
-            currentPWD = request.json[0]['currentPWD']
-            newPWD = request.json[0]['newPWD']
+            currentPWD = hashlib.sha256(request.json[0]['currentPWD'].encode("utf-8")).hexdigest()
+            newPWD = hashlib.sha256(request.json[0]['newPWD'].encode("utf-8")).hexdigest()
 
             uinfo = dbc.search_userinfo_from_name(uname)
             if uinfo[0][5] != currentPWD:
@@ -146,7 +147,6 @@ def user_settings():
                 #パスワード変更処理
                 previnfo,newinfo = dbc.update_user_info(uname,'passwd',newPWD)
                 newuinfo = dbc.search_userinfo_from_name(uname)
-                print(newuinfo[0][4])
                 return "415",415
 
 
@@ -326,7 +326,11 @@ def return_item():
         return redirect('/login')
     else:
         rental_id = request.json[0]['rental_id']
-        res = dbc.return_item(rental_id=rental_id)
+        userinfo = dbc.search_userinfo_from_name(uname)[0]
+        displayname = userinfo[0]
+        grade_class = userinfo[9]+userinfo[10]
+        
+        res = dbc.return_item(rental_id=rental_id,returnedby=grade_class+" "+displayname)
         if res == 0:
             return "OK",200
         else:

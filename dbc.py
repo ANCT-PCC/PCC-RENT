@@ -1,8 +1,12 @@
 import sqlite3,json,datetime
 import random,string
+import json
+import subprocess
+import hashlib
 
 DB_NAME = 'pcc-rent.db'
 TOKEN_SIZE = 64
+WEBHOOK_URL = 'https://discord.com/api/webhooks/1238851270597541888/krtdLGswv7LRx1KhqvQdRh2MR9xCGsSSROmoRikxD_FEeQ3gfU16OUzB1CPSko5OZDX9'
 
 INIT_SQL_COMMAND = '''CREATE TABLE IF NOT EXISTS "pcc-users"(display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,class,discord) '''
 INIT_SQL_COMMAND_2 = '''CREATE TABLE IF NOT EXISTS "pcc-items"(number,item_name,desc,resource,rental,picture,rental_id) '''
@@ -25,6 +29,11 @@ def sqlExecute(mode:int,sql:str):
 
     conn.close()
     return res
+
+def discord_message(message:str,uname:str):
+    command = ["python","send_discord.py",message,uname]
+    subprocess.Popen(command)
+    
 
 #################################################################
 
@@ -50,7 +59,7 @@ def create_new_user(display_name:str,name:str,email:str,isAdmin:int,passwd:str,g
     else:
         classstr = 'Undefined_Class'
 
-    data = (display_name,name,email,isAdmin,solt,passwd,0,'not set','NoToken',str(grade),classstr,discord)
+    data = (display_name,name,email,isAdmin,solt,hashlib.sha256(passwd.encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade),classstr,discord)
     #テーブルに登録情報を記録
     sql = f'''
         INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
@@ -256,6 +265,14 @@ def rent_item(item_number:str,item_name:str,use:str,rentby:str):
         conn.commit()
         conn.close()
 
+        #Discord 借用通知
+        message = f"備品番号{item_number}:「{item_name}」を **借用** しました"
+        
+        userinfo = search_userinfo_from_name(rentby)[0]
+        grade_class = userinfo[9]+userinfo[10]
+        displayname = userinfo[0]
+        discord_message(message,grade_class+" "+displayname)
+
         return 0
     else:
         print(f"借用が重複している可能性があります: {item_number}")
@@ -265,11 +282,12 @@ def rent_item(item_number:str,item_name:str,use:str,rentby:str):
         return -1
 
 #備品を返却(履歴に記録)
-def return_item(rental_id:str):
+def return_item(rental_id:str,returnedby:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     timestamp = datetime.datetime.now()
-    print(rental_id)
+    c.execute(f'''SELECT * FROM "pcc-rental" WHERE rental_id = "{rental_id}"''')
+    info = c.fetchall()
     c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id == '{rental_id}' ''')
     
     sql3 = f'''
@@ -282,6 +300,12 @@ def return_item(rental_id:str):
     c.execute(sql4)
     conn.commit()
     conn.close()
+
+    #Discord 返却通知
+    item_number = info[0][0]
+    item_name = info[0][1]
+    message = f"備品番号{item_number}: 「{item_name}」を **返却** しました"
+    discord_message(message,returnedby)
 
     return 0
 

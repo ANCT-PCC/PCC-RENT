@@ -18,7 +18,7 @@ window.onload = function(){
         var data=JSON.stringify(json);
         var res = JSON.parse(data);
 
-        for (i = 0; i < res.length; i++){
+        for (i = res.length-1; i >= 0; i--){
           //tr エレメントを新規作成(ただ生成するだけ)
           var tr = document.createElement('tr');
           //列(td)用のループ

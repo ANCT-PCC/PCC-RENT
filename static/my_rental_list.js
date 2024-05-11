@@ -20,7 +20,7 @@ window.onload = function(){
         var data=JSON.stringify(json);
         var res = JSON.parse(data);
 
-        for (i = 0; i < res.length; i++){
+        for (i = res.length-1; i >= 0; i--){
           //tr エレメントを新規作成(ただ生成するだけ)
           var tr = document.createElement('tr');
           
@@ -54,7 +54,7 @@ window.onload = function(){
         }//行用のループ閉じ
         
         //貸し出し中以外の表示をしている場合、ボタンを非表示に
-        for(i=0;i<res.length;i++){
+        for(i=res.length-1;i>=0;i--){
           if(res[i]['returned'] != '貸し出し中'){
             document.getElementById('item'+String(i)).style.color = 'green'
             document.getElementById('return_button'+String(i)).style.visibility = 'hidden'
