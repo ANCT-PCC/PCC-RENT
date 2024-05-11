@@ -4,10 +4,13 @@ import random,string
 import sqlite3
 import json
 import hashlib
+import ssl
 
 TOKEN_SIZE = 64
 
 app = Flask(__name__)
+#context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+#context.load_cert_chain('cert.crt', 'server_secret.key')
 
 #初期化処理
 def init():
@@ -357,5 +360,6 @@ def rental_item():
             return "ERROR",400
 
 init()
-print("Access: http://localhost:8080/")
-app.run(port=8080,host="0.0.0.0",debug=True)
+print("Access: https://pcc-rent.nemnet-lab.net/")
+#app.run(port=443,host="0.0.0.0",debug=True,ssl_context=context,threaded=True)
+app.run(port=8080,host="0.0.0.0",debug=True,threaded=True)

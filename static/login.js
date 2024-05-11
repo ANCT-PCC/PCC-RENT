@@ -3,7 +3,8 @@ const $form_email = document.getElementById("floatingInput");
 const $form_passwd = document.getElementById("floatingPassword");
 const $login_status_error = document.getElementById("login_status_error");
 
-const SERVER_ADDR='http://localhost:8080/'
+const SERVER_ADDR='https://pcc-rent.nemnet-lab.net/'
+
 $login_status_error.style.visibility = "hidden";
 
 
@@ -22,7 +23,7 @@ $login_button.addEventListener('click',(e) => {
     
     $.ajax(
         {
-          url:SERVER_ADDR+'login',
+          url:'https://pcc-rent.nemnet-lab.net/'+'login',
           type:'POST',
           data:JSON.stringify(form_data), //ここで辞書型からJSONに変換
           dataType: 'json',
@@ -33,7 +34,7 @@ $login_button.addEventListener('click',(e) => {
         if(String(jqXHR.status) === "200"){
             //ログイン続行
             login_status_error.style.visibility = "hidden";
-            window.location.href = 'http://localhost:8080/';
+            window.location.href = 'https://pcc-rent.nemnet-lab.net/';
         }else if(String(jqXHR.status) === "444"){
             //入力の修正を求める
             login_status_error.textContent = "ユーザ名/パスワードに誤りがあります。code="+jqXHR.status;
