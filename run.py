@@ -5,8 +5,10 @@ import sqlite3
 import json
 import hashlib
 import ssl
+import datetime
 
-TOKEN_SIZE = 64
+TOKEN_SIZE = 64 #トークンのサイズ
+COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
 
 app = Flask(__name__)
 #context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -35,13 +37,13 @@ def randomname(TOKEN_SIZE):
 def index():
     token = request.cookies.get('token')
     uname = request.cookies.get('uname')
-    print(f"uname:{uname} , token={token}")
-    if token is None or uname is None:
+    displayname = request.cookies.get('displayname')
+    if token is None or uname is None or displayname is None:
         return redirect('/login')
     else:
         uname,login_status = dbc.cktoken(uname,token)
         if login_status == 3: #ログイン状態である
-            return render_template('dashboard.html',uname = uname)
+            return render_template('dashboard.html',uname = displayname)
         elif login_status == 1 or login_status == 2:
             return redirect('/login')
     
@@ -65,9 +67,12 @@ def login():
             if passwd_flag == True: #パスワードがあっている
                 print(f"\nパスワードがあっている時の処理\n")
                 token = randomname(TOKEN_SIZE=TOKEN_SIZE) #一意のトークン
+                displayname = dbc.search_userinfo_from_name(uname)[0][0]
                 res = make_response(redirect('/'))
-                res.set_cookie('token', token)
-                res.set_cookie('uname', uname)
+                expires = int(datetime.datetime.now().timestamp()) + 60*60*COOKIE_AGE
+                res.set_cookie('token', token,expires=expires)
+                res.set_cookie('uname', uname,expires=expires)
+                res.set_cookie('displayname',displayname,expires=expires)
                 
                 #DBに新しいトークンを上書きと同時に
                 #サブプロセスでタイマーを作動
@@ -125,6 +130,7 @@ def logout():
     res=make_response(redirect('/login'))
     res.delete_cookie('token')
     res.delete_cookie('uname')
+    res.delete_cookie('displayname')
     dbc.update_token(uname,'NoToken')
 
     return res
@@ -157,45 +163,65 @@ def user_settings():
 
         uname = request.cookies.get('uname')
         token = request.cookies.get('token')
+        displayname = request.cookies.get('displayname')
 
         uname,login_status = dbc.cktoken(uname,token)
         if login_status != 3:
             return redirect('/login')
         else:
-            return render_template('user_settings.html',uname=uname)
+            return render_template('user_settings.html',uname=displayname)
+        
+@app.route('/user_settings_discord',methods=['POST'])
+def user_settings_discord():
+    
+    uname = request.cookies.get('uname')
+    token = request.cookies.get('token')
+
+    uname,login_status = dbc.cktoken(uname,token)
+    if login_status != 3:
+        return redirect('/login')
+    else:
+        newDiscord = request.json[0]['newDiscord']
+        uinfo = dbc.search_userinfo_from_name(uname)
+        #Discordのユーザ名変更処理
+        previnfo,newinfo = dbc.update_user_info(uname,'discord',newDiscord)
+        return "OK",200
     
 @app.route('/my_rental_list')
 def my_rental_list():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
     uname,login_status = dbc.cktoken(uname,token)
     if login_status != 3:
         return redirect('/login')
     else:
-        return render_template('my_rental_list.html',uname=uname)
+        return render_template('my_rental_list.html',uname=displayname)
     
 @app.route('/pcc-items')
 def pcc_items():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
     uname,login_status = dbc.cktoken(uname,token)
     if login_status != 3:
         return redirect('/login')
     else:
-        return render_template('pcc-items.html',uname=uname)
+        return render_template('pcc-items.html',uname=displayname)
     
 @app.route('/members')
 def members():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
     uname,login_status = dbc.cktoken(uname,token)
     if login_status != 3:
         return redirect('/login')
     else:
-        return render_template('members.html',uname=uname)
+        return render_template('members.html',uname=displayname)
     
 @app.route('/show_members')
 def show_members():
@@ -360,6 +386,6 @@ def rental_item():
             return "ERROR",400
 
 init()
-print("Access: https://pcc-rent.nemnet-lab.net/")
+print("Access: http://192.168.200.4:8080/")
 #app.run(port=443,host="0.0.0.0",debug=True,ssl_context=context,threaded=True)
 app.run(port=8080,host="0.0.0.0",debug=True,threaded=True)
