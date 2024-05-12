@@ -288,7 +288,7 @@ def return_item(rental_id:str,returnedby:str):
     timestamp = datetime.datetime.now()
     c.execute(f'''SELECT * FROM "pcc-rental" WHERE rental_id = "{rental_id}"''')
     info = c.fetchall()
-    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id == '{rental_id}' ''')
+    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:<br>{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id == '{rental_id}' ''')
     
     sql3 = f'''
         UPDATE "pcc-items" SET rental = 'なし' WHERE rental_id = '{rental_id}'

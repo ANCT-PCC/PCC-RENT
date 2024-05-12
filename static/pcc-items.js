@@ -33,7 +33,7 @@ window.onload = function(){
               }else if(j==2){
                 td.innerHTML = res[i]['desc']
               }else if(j==3){
-                td.innerHTML = res[i]['resource']
+                td.innerHTML = "<a id='resource"+String(i)+"'>"+res[i]['resource']+"</a>"
               }else if(j==4){
                 td.innerHTML = res[i]['rental']+'<br>'+"<button id='rental_button"+String(i)+"' type='button' class='btn btn-primary'>借りる</button>"
               }else if(j==5){
@@ -47,14 +47,17 @@ window.onload = function(){
   
         }//行用のループ閉じ
 
-        //すでに貸出していれば、「借りる」ボタンを非表示にする
         for(i=0;i<res.length;i++){
           if(res[i]['rental'] != 'なし'){
             document.getElementById('rental_button'+String(i)).style.visibility = 'hidden';
           }
+          if(res[i]['resource'] == '金庫'){
+            document.getElementById('resource'+String(i)).style.color = 'green';
+          }else{
+            document.getElementById('resource'+String(i)).style.color = 'red';
+          }
 
           document.getElementById('rental_button'+String(i)).addEventListener('click',(e)=>{
-            console.log("動作")            
             var number = e.target.id[13]
             var iteminfo = [{
               item_number: document.getElementById("item_number"+number).textContent
