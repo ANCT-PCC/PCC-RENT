@@ -42,7 +42,7 @@ def discord_message(message:str,uname:str):
 #################################################################
 
 #新規ユーザを作成する
-def create_new_user(display_name:str,name:str,email:str,isAdmin:int,passwd:str,grade:int,user_class:int,discord:str):
+def create_new_user(display_name:str,name:str,email:str,isAdmin:bool,passwd:str,grade:int,user_class:int,discord:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
@@ -59,7 +59,7 @@ def create_new_user(display_name:str,name:str,email:str,isAdmin:int,passwd:str,g
     else:
         classstr = 'Undefined_Class'
 
-    data = (display_name,name,email,isAdmin,solt,hashlib.sha256(passwd.encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade),classstr,discord)
+    data = (display_name,name,email,str(isAdmin),solt,hashlib.sha256(passwd.encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade),classstr,discord)
     #テーブルに登録情報を記録
     sql = f'''
         INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
