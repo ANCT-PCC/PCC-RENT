@@ -250,12 +250,13 @@ def show_members():
 def show_my_rental_list():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
     uname,login_status = dbc.cktoken(uname,token)
     if login_status != 3:
         return redirect('/login')
     else:
-        res = dbc.sarch_rent_items(uname)
+        res = dbc.sarch_rent_items(displayname)
         rental_info = []
 
         for flag in range(len(res)):
@@ -369,6 +370,7 @@ def return_item():
 def rental_item():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
     uname,login_status = dbc.cktoken(uname,token)
     if login_status != 3:
@@ -378,7 +380,7 @@ def rental_item():
         item_name = dbc.search_iteminfo_from_number(item_number)[1]
         print("アイテムの名前"+item_name)
         use = '未記載'
-        res = dbc.rent_item(item_number,item_name,use,uname)
+        res = dbc.rent_item(item_number,item_name,use,displayname)
 
         if res == 0:
             return "OK",200

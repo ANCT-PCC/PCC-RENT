@@ -42,24 +42,14 @@ def discord_message(message:str,uname:str):
 #################################################################
 
 #新規ユーザを作成する
-def create_new_user(display_name:str,name:str,email:str,isAdmin:bool,passwd:str,grade:int,user_class:int,discord:str):
+def create_new_user(display_name:str,name:str,email:str,isAdmin:bool,passwd:str,grade:int,user_class:str,discord:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
     c.execute(INIT_SQL_COMMAND)
     solt = 'not set'
-    if user_class == 11:
-        classstr = 'M'
-    elif user_class == 21:
-        classstr = 'E'
-    elif user_class == 31:
-        classstr = 'S'
-    elif classstr == 41:
-        classstr = 'C'
-    else:
-        classstr = 'Undefined_Class'
 
-    data = (display_name,name,email,str(isAdmin),solt,hashlib.sha256(passwd.encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade),classstr,discord)
+    data = (display_name,name,email,str(isAdmin),solt,hashlib.sha256(passwd.encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade),user_class,discord)
     #テーブルに登録情報を記録
     sql = f'''
         INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
@@ -176,7 +166,7 @@ def update_token(uname:str,new_token:str):
 #################################################################
 
 #備品を登録する
-def create_new_item(number:str,name:str,desc:str,resource:int,rental:str,picture:str):
+def create_new_item(number:str,name:str,desc:str,resource:str,rental:str,picture:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     #テーブルがなければ作成
