@@ -13,13 +13,13 @@ INIT_SQL_COMMAND_2 = '''CREATE TABLE IF NOT EXISTS "pcc-items"(number,item_name,
 INIT_SQL_COMMAND_3 = '''CREATE TABLE IF NOT EXISTS "pcc-rental"(number,item_name,use,rentby,rent,deadline,returned,rental_id) '''
 
 #汎用SQL実行
-def sqlExecute(mode:int,sql:str):
+def sqlExecute(mode:bool,sql:str):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute(sql)
     res=c.fetchall()
 
-    if mode == 1:
+    if mode == True:
         #書き込みモード
         print("\n[Notice]\t書き込みモードで実行しました")
         conn.commit()
@@ -259,9 +259,8 @@ def rent_item(item_number:str,item_name:str,use:str,rentby:str,uname:str):
         message = f"備品番号{item_number}:「{item_name}」を **借用** しました"
         
         userinfo = search_userinfo_from_name(uname)[0]
-        grade_class = userinfo[9]+userinfo[10]
         displayname = userinfo[0]
-        discord_message(message,grade_class+" "+displayname)
+        discord_message(message,displayname+' '+uname)
 
         return 0
     else:
