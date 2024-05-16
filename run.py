@@ -388,6 +388,6 @@ def rental_item():
             return "ERROR",400
 
 init()
-print("Access: https://pcc-rent.nemnet-lab.net/")
+print("Access: http://localhost;8080/")
 #app.run(port=443,host="0.0.0.0",debug=True,ssl_context=context,threaded=True)
 app.run(port=8080,host="0.0.0.0",debug=True,threaded=True)

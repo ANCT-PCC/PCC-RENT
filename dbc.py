@@ -259,7 +259,6 @@ def rent_item(item_number:str,item_name:str,use:str,rentby:str,uname:str):
         message = f"備品番号{item_number}:「{item_name}」を **借用** しました"
         
         userinfo = search_userinfo_from_name(uname)[0]
-        print(userinfo)
         grade_class = userinfo[9]+userinfo[10]
         displayname = userinfo[0]
         discord_message(message,grade_class+" "+displayname)
