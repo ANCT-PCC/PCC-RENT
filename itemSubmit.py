@@ -4,6 +4,9 @@ csvfile = open("itemList.csv","r",encoding="utf-8")
 
 file = csv.reader(csvfile, delimiter=",", doublequote=True, lineterminator="\r\n", quotechar='"', skipinitialspace=True)
 
+print("ファイルをロードしました。")
+
+
 flag =0
 for row in file:
     if(flag == 0):
