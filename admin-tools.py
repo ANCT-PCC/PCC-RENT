@@ -18,13 +18,41 @@ while True:
         msg1 = '''
             1が選択されました。
             学年の一括進級を設定しますか？
-            ※5年生は「卒業扱い」となり、アカウントが無効化されます
+            ※ 5年生は「卒業扱い」となり、アカウントが無効化されます
 
             y: はい
             n: いいえ
         '''
-        selector_1 = input("操作番号を入力> ")
-        exit()
+        print(msg1)
+        selector_1 = input("操作を入力> ")
+        if selector_1 == 'y' or selector_1 == 'Y':
+            selector_1_1 = input("留年者はいますか？(y/n): ")
+            if selector_1_1 == 'y' or selector_1_1 == 'Y':
+                ignore_uname = []
+                while True:
+                    uname = input("留年した人のユーザ名[例:s203120]を入力してください。\n「end」を入力するまで続けて入力できます。")
+                    if uname == 'end' or uname == 'END':
+                        break
+                    else:
+                        ignore_uname.append(uname)
+                    
+                for i in range(len(ignore_uname)):
+                    print(ignore_uname[i])
+                selector_1_2 = input("以上のユーザ名を除外して、そのほかを進級させます。(y/n)\n")
+                
+
+                if selector_1_2 == 'y' or selector_1_2 == 'Y':
+                    #除外しつつ進級作業
+                    pass
+                else:
+                    print("中止します。はじめからやり直してください。")
+
+            else:
+                #全員を進級
+                print("全員を進級させます")
+        else:
+            print("中止します。はじめからやり直してください。")
+            continue
 
     elif main_selector == '2':
         msg2 = '''
