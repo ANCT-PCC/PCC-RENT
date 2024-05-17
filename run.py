@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request,make_response
+from flask import Flask, redirect, url_for, render_template, request,make_response,send_file,send_from_directory
 import dbc
 import random,string
 import sqlite3
@@ -6,10 +6,11 @@ import json
 import hashlib
 import ssl
 import datetime
+import os
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
-VERSION = '1.3'
+VERSION = 'ver.1.4'
 
 app = Flask(__name__)
 #context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -386,6 +387,17 @@ def rental_item():
             return "OK",200
         else:
             return "ERROR",400
+        
+@app.route('/admintools')
+def admintools():
+    return render_template('admintools.html',ver=VERSION)
+
+@app.route('/admintools/pcc-rent.db')
+def admintools_dlfile():
+    #dlname = 'pcc-rent'+datetime.datetime.now().strftime('%Y%m%d%H%M')+'.db'
+    #mimetype='application/octet-stream'
+    dir = os.path.abspath(__file__)[:-7]
+    return send_from_directory(directory=dir,path='pcc-rent.db')
 
 init()
 print("Access: http://localhost:8080/")
