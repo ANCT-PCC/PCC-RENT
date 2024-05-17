@@ -396,8 +396,8 @@ def admintools():
 def admintools_dlfile():
     #dlname = 'pcc-rent'+datetime.datetime.now().strftime('%Y%m%d%H%M')+'.db'
     #mimetype='application/octet-stream'
-    dir = os.path.abspath(__file__)[:-7]
-    return send_from_directory(directory=dir,path='pcc-rent.db')
+    #dir = os.path.abspath(__file__)[:-7]
+    return send_file('pcc-rent.db',as_attachment=True)
 
 init()
 print("Access: http://localhost:8080/")
