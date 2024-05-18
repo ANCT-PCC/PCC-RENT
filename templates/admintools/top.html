@@ -204,14 +204,14 @@
 </svg>
 
 <header class="navbar sticky-top flex-md-nowrap p-0 shadow" style="background-color: #75fbfd;" data-bs-theme="dark">
-  <a href="/" class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-5 text-white">PCC-RENT {{ver}}</a>
+  <a href="/admintools/top" class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-5 text-white">PCC-RENT 管理 {{ver}}</a>
   <ul class="navbar-nav flex-row d-md-none">
     <li class="nav-item text-nowrap">
 
     </li>
     <li class="nav-item text-nowrap">
       <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <img width="30" height="30" src="static/assets/hamburger.png"><use xlink:href="#list"/></img>
+        <img width="30" height="30" src="../../static/assets/hamburger.png"><use xlink:href="#list"/></img>
       </button>
     </li>
   </ul>
@@ -225,17 +225,13 @@
   <div class="row">
 
     <main>
-      <h2 class="mt-5">備品管理システム「PCC-RENT」　Web管理ツール</h2>
-      <h5 class="mt-5">任意のSQLコマンドを実行</h5>
-      <input style="width: 70%;" id="sqlcmd" class="form-control" type="text" placeholder="SQLコマンドを入力" aria-label="default input example">
-      <button id="sqlexecute_button" type="button" class="btn btn-secondary mt-1">SQLコマンド実行</button>
-      <div class="mb-3">
-        <label for="exampleFormControlTextarea1" class="form-label">SQL実行結果</label>
-        <textarea style="width: 70%;" class="form-control" id="sqlresult" rows="10" disabled readonly></textarea>
-      </div>
+      <h2 class="mt-5">備品管理システム「PCC-RENT」　Web管理ツール-トップ</h2>
+      
+      <button id="move_db" type="button" class="btn btn-primary mt-1">データベースの管理</button>
       <br>
-      <h5>データベースファイルを(ダウンロード)</h5>
-      <button id="dbdl_button" type="button" class="btn btn-primary">pcc-rent.db をダウンロードする</button>
+      <button id="move_item" type="button" class="btn btn-primary mt-1">備品の管理</button>
+      <br>
+      <button id="move_user" type="button" class="btn btn-primary mt-1">ユーザの管理</button>
 
 
     </main>
@@ -244,7 +240,7 @@
 <script src="{{url_for('static',filename='assets/dist/js/bootstrap.bundle.min.js')}}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js" integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp" crossorigin="anonymous"></script>
-    <script src="{{url_for('static',filename='admintools.js')}}"></script>
+    <script src="{{url_for('static',filename='admin-top.js')}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
 </html>

@@ -10,7 +10,7 @@ import os
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
-VERSION = 'ver.1.4'
+VERSION = 'ver.2.0'
 
 app = Flask(__name__)
 #context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -389,8 +389,12 @@ def rental_item():
             return "ERROR",400
         
 @app.route('/admintools')
-def admintools():
-    return render_template('admintools.html',ver=VERSION)
+def admintools_top():
+    return redirect('/admintools/top')
+
+@app.route('/admintools/<string:page>')
+def admintools(page):
+    return render_template('admintools/'+page+'.html',ver=VERSION)
 
 @app.route('/admintools/pcc-rent.db')
 def admintools_dlfile():
