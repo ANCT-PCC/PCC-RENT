@@ -56,7 +56,6 @@ def login():
         res = request.json[0]
         uname = res['uname']
         passwd = hashlib.sha256(res['passwd'].encode("utf-8")).hexdigest()
-        print(f"{uname} , {passwd}")
         
         uinfo = dbc.search_userinfo_from_name(uname)
         if len(uinfo) != 0:
