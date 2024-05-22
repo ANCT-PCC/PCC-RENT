@@ -1,21 +1,16 @@
-from flask import Flask, redirect, url_for, render_template, request,make_response,send_file,send_from_directory,jsonify
+from flask import Flask, redirect, url_for, render_template, request,make_response,send_file
+from flask_httpauth import HTTPDigestAuth
 import dbc
 import random,string
 import sqlite3
 import json
 import hashlib
-import ssl
 import datetime
-import os
 import userSubmit,itemSubmit
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
 VERSION = 'ver.2.0'
-
-app = Flask(__name__)
-#context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-#context.load_cert_chain('cert.crt', 'server_secret.key')
 
 #初期化処理
 def init():
@@ -35,6 +30,21 @@ def init():
 #ランダムトークン生成
 def randomname(TOKEN_SIZE):
    return ''.join(random.choices(string.ascii_letters + string.digits, k=TOKEN_SIZE))
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = randomname(TOKEN_SIZE)
+auth = HTTPDigestAuth()
+
+try:
+    with open('setting_files/admin_info.json','r',encoding='utf-8') as f:
+     Admin = json.load(f)
+
+except FileNotFoundError:
+    print("[PCC-RENT] ERROR: setting_files/admin_info.json NOT FOUND.")
+
+@auth.get_password
+def get_pw(id):
+    return Admin.get(id)
 
 @app.route('/',methods=['GET'])
 def index():
@@ -384,14 +394,17 @@ def rental_item():
             return "ERROR",400
         
 @app.route('/admintools')
+@auth.login_required
 def admintools_top():
     return redirect('/admintools/top')
 
 @app.route('/admintools/<string:page>')
+@auth.login_required
 def admintools(page):
     return render_template('admintools/'+page+'.html',ver=VERSION)
 
 @app.route('/admintools/pcc-rent.db')
+@auth.login_required
 def admintools_dlfile():
     #dlname = 'pcc-rent'+datetime.datetime.now().strftime('%Y%m%d%H%M')+'.db'
     #mimetype='application/octet-stream'
@@ -399,6 +412,7 @@ def admintools_dlfile():
     return send_file('pcc-rent.db',as_attachment=True)
 
 @app.route('/admintools/submitusers/<string:mode>',methods=['POST'])
+@auth.login_required
 def submitusers(mode):
     if mode == 'submit':
         submit_contents = str(request.json['content'])
@@ -416,6 +430,7 @@ def submitusers(mode):
     
 
 @app.route('/admintools/submititems/<string:mode>',methods=['POST'])
+@auth.login_required
 def submititems(mode):
 
     if mode == 'submit':
@@ -436,6 +451,7 @@ def submititems(mode):
         return "404",404
     
 @app.route('/admintools/db/sqlexecute',methods=['POST'])
+@auth.login_required
 def sqlexecute():
     sqlcmd = str(request.json['sqlcmd'])
     result = dbc.sqlExecute(True,sqlcmd)
