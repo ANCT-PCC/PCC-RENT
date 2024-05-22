@@ -4,3 +4,5 @@ __pycache__
 pcc-rent.db
 userList.csv
 itemList.csv
+deluserList.csv
+delitemList.csv

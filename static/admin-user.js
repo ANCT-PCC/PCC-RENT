@@ -1,27 +1,38 @@
 const SERVER_ADDR = 'http://localhost:8080/'
-const $DB_DOUNLOAD = document.getElementById('dbdl_button');
-const $SQL_EXECUTE = document.getElementById('sqlexecute_button') 
-const $SQL_RESULT = document.getElementById('sqlresult')
-const $SQL_CMD = document.getElementById('sqlcmd')
+const $USERLIST = document.getElementById('userlist')
+const $USER_SUBMIT_BUTTON = document.getElementById('user_submit_button')
 
-$DB_DOUNLOAD.addEventListener('click',(e)=>{
-    window.location = SERVER_ADDR+'admintools/pcc-rent.db'
-})
+const $DELUSERLIST = document.getElementById('deluserlist')
+const $USER_DELETE_BUTTON = document.getElementById('user_delete_button')
 
-$SQL_EXECUTE.addEventListener('click',(e)=>{
-    command = $SQL_CMD.value
+$USER_SUBMIT_BUTTON.addEventListener('click',(e)=>{
 
-    data = {
-        'command': String(command)
-    }
+    var userlist = {content: $USERLIST.value}
 
     $.ajax({
-        url:SERVER_ADDR+'sqlexecute',
-        type:'POST',
-        data:JSON.stringify(data), //ここで辞書型からJSONに変換
+        url: SERVER_ADDR+'admintools/submitusers/submit',
+        type: 'POST',
+        data: JSON.stringify(userlist),
         dataType: 'json',
         contentType: 'application/json'
     }).always(function(jqXHR){
         console.log(jqXHR.status)
+        location.reload()
+    })
+})
+
+$USER_DELETE_BUTTON.addEventListener('click',(e)=>{
+
+    var userlist = {content: $DELUSERLIST.value}
+
+    $.ajax({
+        url: SERVER_ADDR+'admintools/submitusers/delete',
+        type: 'POST',
+        data: JSON.stringify(userlist),
+        dataType: 'json',
+        contentType: 'application/json'
+    }).always(function(jqXHR){
+        console.log(jqXHR.status)
+        location.reload()
     })
 })

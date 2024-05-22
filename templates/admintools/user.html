@@ -226,16 +226,22 @@
 
     <main>
       <h2 class="mt-5">備品管理システム「PCC-RENT」　Web管理ツール-ユーザ関連</h2>
-      <h5 class="mt-5">任意のSQLコマンドを実行</h5>
-      <input style="width: 70%;" id="sqlcmd" class="form-control" type="text" placeholder="SQLコマンドを入力" aria-label="default input example">
-      <button id="sqlexecute_button" type="button" class="btn btn-secondary mt-1">SQLコマンド実行</button>
-      <div class="mb-3">
-        <label for="exampleFormControlTextarea1" class="form-label">SQL実行結果</label>
-        <textarea style="width: 70%;" class="form-control" id="sqlresult" rows="10" disabled readonly></textarea>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/admintools/top">管理トップへ戻る</a></li>
+      </ol>
+      <h5 class="mt-1">ユーザ一括登録</h5>      
+      <div class="mb-1">
+        <label for="exampleFormControlTextarea1" class="form-label">「学年,学科,表示名,共通認証ID」の形式で入力(改行で複数登録)</label>
+        <textarea style="width: 70%;" class="form-control" id="userlist" rows="10"></textarea>
       </div>
+      <button id="user_submit_button" type="button" class="btn btn-secondary mt-1">ユーザ一括登録</button>
       <br>
-      <h5>データベースファイルを(ダウンロード)</h5>
-      <button id="dbdl_button" type="button" class="btn btn-primary">pcc-rent.db をダウンロードする</button>
+      <h5 class="mt-3">ユーザ一括削除</h5>      
+      <div class="mb-1">
+        <label for="exampleFormControlTextarea1" class="form-label">削除対象の共通認証IDを入力(改行で複数削除)</label>
+        <textarea style="width: 70%;" class="form-control" id="deluserlist" rows="10"></textarea>
+      </div>
+      <button id="user_delete_button" type="button" class="btn btn-danger mt-1">ユーザ一括削除</button>
 
 
     </main>

@@ -11,17 +11,18 @@ $DB_DOUNLOAD.addEventListener('click',(e)=>{
 $SQL_EXECUTE.addEventListener('click',(e)=>{
     command = $SQL_CMD.value
 
-    data = {
-        'command': String(command)
+    _data = {
+        'sqlcmd': String(command)
     }
 
     $.ajax({
-        url:SERVER_ADDR+'sqlexecute',
+        url:SERVER_ADDR+'admintools/db/sqlexecute',
         type:'POST',
-        data:JSON.stringify(data), //ここで辞書型からJSONに変換
+        data:JSON.stringify(_data), //ここで辞書型からJSONに変換
         dataType: 'json',
         contentType: 'application/json'
     }).always(function(jqXHR){
         console.log(jqXHR.status)
+        $SQL_RESULT.value = String(jqXHR)
     })
 })

@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request,make_response,send_file,send_from_directory
+from flask import Flask, redirect, url_for, render_template, request,make_response,send_file,send_from_directory,jsonify
 import dbc
 import random,string
 import sqlite3
@@ -7,6 +7,7 @@ import hashlib
 import ssl
 import datetime
 import os
+import userSubmit,itemSubmit
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
@@ -59,14 +60,12 @@ def login():
         
         uinfo = dbc.search_userinfo_from_name(uname)
         if len(uinfo) != 0:
-            print(f"{uinfo[0][5]}")
             if(uinfo[0][5] == passwd):
                 passwd_flag = True
             else:
                 passwd_flag = False
 
             if passwd_flag == True: #パスワードがあっている
-                print(f"\nパスワードがあっている時の処理\n")
                 token = randomname(TOKEN_SIZE=TOKEN_SIZE) #一意のトークン
                 displayname = dbc.search_userinfo_from_name(uname)[0][0]
                 res = make_response(redirect('/'))
@@ -86,9 +85,7 @@ def login():
         else:
             token="Nodata"
             uname="Nodata"
-            print(f"\ntoken={token}\nresult={res}\n")
             if res == "Nodata" or token is None or res is None:
-                print("\nDEBUG\n")
 
                 return "444",444 #ログインエラーのレス
             else:
@@ -378,7 +375,6 @@ def rental_item():
     else:
         item_number = request.json[0]['item_number']
         item_name = dbc.search_iteminfo_from_number(item_number)[1]
-        print("アイテムの名前"+item_name)
         use = '未記載'
         res = dbc.rent_item(item_number,item_name,use,displayname,uname)
 
@@ -401,6 +397,52 @@ def admintools_dlfile():
     #mimetype='application/octet-stream'
     #dir = os.path.abspath(__file__)[:-7]
     return send_file('pcc-rent.db',as_attachment=True)
+
+@app.route('/admintools/submitusers/<string:mode>',methods=['POST'])
+def submitusers(mode):
+    if mode == 'submit':
+        submit_contents = str(request.json['content'])
+        with open('userList.csv','w',encoding='utf-8') as f:
+            f.write(submit_contents)
+
+        userSubmit.userSubmit()
+        return "OK"
+    elif mode == 'delete':
+        delete_contents = str(request.json['content'])
+        with open('deluserList.csv','w',encoding='utf-8') as f:
+            f.write(delete_contents)
+        
+        userSubmit.userDelete()
+    
+
+@app.route('/admintools/submititems/<string:mode>',methods=['POST'])
+def submititems(mode):
+
+    if mode == 'submit':
+        submit_contents = str(request.json['content'])
+        with open('itemList.csv','w',encoding='utf-8') as f:
+            f.write(submit_contents)
+
+        itemSubmit.itemSubmit()
+        return "OK"
+    elif mode == 'delete':
+        delete_contents = str(request.json['content'])
+        with open('delitemList.csv','w',encoding='utf-8') as f:
+            f.write(delete_contents)
+
+        itemSubmit.itemDelete()
+        return "OK"
+    else:
+        return "404",404
+    
+@app.route('/admintools/db/sqlexecute',methods=['POST'])
+def sqlexecute():
+    sqlcmd = str(request.json['sqlcmd'])
+    result = dbc.sqlExecute(True,sqlcmd)
+    data = {'content':result}
+    print(data['content'])
+    return data['content'],200
+
 
 init()
 print("Access: http://localhost:8080/")
