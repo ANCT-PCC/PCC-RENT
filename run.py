@@ -60,6 +60,10 @@ def index():
             return render_template('dashboard.html',uname = displayname,ver=VERSION)
         elif login_status == 1 or login_status == 2:
             return redirect('/login')
+        
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('favicon.ico')
     
 
 @app.route('/login',methods=['GET','POST'])
