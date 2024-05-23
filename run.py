@@ -41,6 +41,7 @@ try:
 
 except FileNotFoundError:
     print("[PCC-RENT] ERROR: setting_files/admin_info.json NOT FOUND.")
+    exit()
 
 @auth.get_password
 def get_pw(id):
