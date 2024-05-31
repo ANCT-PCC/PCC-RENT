@@ -3,4 +3,5 @@ FROM python:3.10
 COPY ${PWD} /pcc-rent
 WORKDIR /pcc-rent/
 RUN pip install -r req.txt
-CMD ["python","run.py"]
+RUN chmod +rx startup.sh
+CMD ["./startup.sh"]
