@@ -1,6 +1,6 @@
 FROM python:3.10
 
-COPY ${PWD} /pcc-rent
+COPY ${PWD} /PCC-TENT
 WORKDIR /PCC-RENT/
 RUN pip install -r req.txt
 RUN chmod +rx startup.sh
