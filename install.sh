@@ -7,4 +7,4 @@
 
 docker image build -t pcc-rent:latest . 
 docker volume create pcc-rent
-docker run --name pcc-rent -v ${PWD}:/pcc-rent -t pcc-rent:latest
+docker run --name pcc-rent -p 8080:8080 -d -v ${PWD}:/pcc-rent -t pcc-rent:latest
