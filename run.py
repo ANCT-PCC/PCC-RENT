@@ -197,7 +197,7 @@ def pwdchange():
     if login_status != 3:
         return redirect('/login')
     else:
-        return render_template('passwd_change.html',uname=displayname)
+        return render_template('passwd_change.html',uname=displayname,ver=VERSION)
         
 @app.route('/user_settings_discord',methods=['POST'])
 def user_settings_discord():
