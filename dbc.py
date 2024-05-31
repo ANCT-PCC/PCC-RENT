@@ -157,6 +157,8 @@ def update_token(uname:str,new_token:str):
 #ユーザのパスワード未変更を検出
 def ckpwdchange(uname:str):
     res = search_userinfo_from_name(uname)
+    if len(res[0]) == 0:
+        return 1
     uname_hash = hashlib.sha256(uname.encode('utf-8')).hexdigest()
     passwd = res[0][5]
 
