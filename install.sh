@@ -19,4 +19,4 @@ sed -e s#http://localhost:8080/#http://192.168.200.100:8080/#g static/user_setti
 
 docker image build -t pcc-rent:latest . 
 docker volume create pcc-rent
-docker run --name pcc-rent -p 8080:8080 -d -v ${PWD}:/pcc-rent -t pcc-rent:latest
+docker run --name pcc-rent -p 8080:8080 -v ${PWD}:/pcc-rent -t pcc-rent:latest
