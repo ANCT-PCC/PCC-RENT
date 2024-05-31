@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm ../pcc-rent-Backup/pcc-rent.db
+rm -r ../pcc-rent-Backup/setting_files
 rm -r ../pcc-rent-Backup
 mkdir ../pcc-rent-Backup
 docker cp pcc-rent:/PCC-RENT/pcc-rent.db ../pcc-rent-Backup
