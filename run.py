@@ -56,7 +56,6 @@ def index():
         return redirect('/login')
     else:
         pwchangeFlag = dbc.ckpwdchange(uname=uname)
-        print(pwchangeFlag)
         if pwchangeFlag == 1:
             return redirect('/pwdchange')
         uname,login_status = dbc.cktoken(uname,token)
