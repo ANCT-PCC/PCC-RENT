@@ -12,3 +12,5 @@ sed -i -e s#http://localhost:8080/#http://192.168.200.100:8080/#g static/my_rent
 sed -i -e s#http://localhost:8080/#http://192.168.200.100:8080/#g static/passwd_change.js
 sed -i -e s#http://localhost:8080/#http://192.168.200.100:8080/#g static/pcc-items.js
 sed -i -e s#http://localhost:8080/#http://192.168.200.100:8080/#g static/user_settings.js
+
+python run.py
