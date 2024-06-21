@@ -3,18 +3,75 @@ import random,string
 import json
 import subprocess
 import hashlib
+import mysql.connector
+import CAS_userLib
 
-DB_NAME = 'pcc-rent.db'
+DB_SERVER = 'pcc-rent-db'
+#DB_SERVER='127.0.0.1'
+DB_NAME = 'pcc_rent'
+DB_PASSWD = 'Kusopass'
+
+TABLE_NAME_LOGIN = 'pcc_login'
+TABLE_NAME_ITEMS = 'pcc_items'
+TABLE_NAME_RENTALS = 'pcc_rental'
+
 TOKEN_SIZE = 64
 WEBHOOK_URL = 'https://discord.com/api/webhooks/1238851270597541888/krtdLGswv7LRx1KhqvQdRh2MR9xCGsSSROmoRikxD_FEeQ3gfU16OUzB1CPSko5OZDX9'
 
-INIT_SQL_COMMAND = '''CREATE TABLE IF NOT EXISTS "pcc-users"(display,name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken,grade,class,discord) '''
-INIT_SQL_COMMAND_2 = '''CREATE TABLE IF NOT EXISTS "pcc-items"(number,item_name,desc,resource,rental,picture,rental_id) '''
-INIT_SQL_COMMAND_3 = '''CREATE TABLE IF NOT EXISTS "pcc-rental"(number,item_name,use,rentby,rent,deadline,returned,rental_id) '''
+INIT_SQL_COMMAND_1 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_LOGIN}(
+    username VARCHAR(255) NOT NULL PRIMARY KEY,
+    token TEXT
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
+
+INIT_SQL_COMMAND_2 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_ITEMS}(
+    number VARCHAR(255) NOT NULL PRIMARY KEY,
+    item_name TEXT,
+    desc TEXT,
+    resource TEXT,
+    rental TEXT,
+    picture TEXT,
+    rental_id TEXT
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
+
+INIT_SQL_COMMAND_3 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_RENTALS}(
+    number TEXT,
+    item_name TEXT,
+    use TEXT,
+    rentby TEXT,
+    rent TEXT,
+    deadline TEXT,
+    returned TEXT,
+    rental_id VARCHAR(255) NOT NULL PRIMARY KEY
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
+
+try:
+    with open('setting_files/CAS_token.json','r',encoding='utf-8') as f:
+     casToken = json.load(f)
+
+except FileNotFoundError:
+    print("[PCC-RENT] ERROR: setting_files/CAS_token.json NOT FOUND.")
+    exit()
+
+SYSTEM_TOKEN = casToken['token']
+print(f"PCC-CAS TOKEN : {SYSTEM_TOKEN}")
+
+#MySQL接続
+def startConnection():
+    conn = mysql.connector.connect(
+        host=DB_SERVER,
+        user='root',
+        password=DB_PASSWD,
+        database=DB_NAME,
+        port='3306'
+    )
+    return conn
+
+#MySQL切断
+def closeConnection(conn):
+    conn.close()
 
 #汎用SQL実行
-def sqlExecute(mode:bool,sql:str):
-    conn = sqlite3.connect(DB_NAME)
+def sqlExecute(conn,mode:bool,sql:str):
     c = conn.cursor()
     c.execute(sql)
     res=c.fetchall()
@@ -27,7 +84,7 @@ def sqlExecute(mode:bool,sql:str):
         print("\n[Notice]\t書き込みモードで実行していません")
         pass
 
-    conn.close()
+    c.close()
     return res
 
 def discord_message(message:str,uname:str):
@@ -41,107 +98,29 @@ def discord_message(message:str,uname:str):
 
 #################################################################
 
-#新規ユーザを作成する
-def create_new_user(display_name:str,name:str,email:str,isAdmin:bool,passwd:str,grade:int,user_class:str,discord:str):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    #テーブルがなければ作成
-    c.execute(INIT_SQL_COMMAND)
-    solt = 'not set'
-
-    data = (display_name,name,email,str(isAdmin),solt,hashlib.sha256(('Kusopass@'+passwd[1:]).encode("utf-8")).hexdigest(),0,'not set','NoToken',str(grade)+'年 ',user_class,discord)
-    #テーブルに登録情報を記録
-    sql = f'''
-        INSERT INTO "pcc-users" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
-        EXCEPT
-        SELECT * FROM "pcc-users" WHERE name == '{name}'
-        '''
-    c.execute(sql,data)
-    #コミット(変更を反映)
-    conn.commit()
-    c.close()
-    return 0
-
-#ユーザーを削除
-def delete_user(name:str):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    #ユーザー削除
-    c.execute(f'''DELETE FROM "pcc-users" WHERE name == "{name}" ''')
-    conn.commit()
-    c.close()
-
-#ユーザー登録情報を検索(ユーザー名から)
+#PCC-CASより、ユーザー登録情報を検索(ユーザー名から)
 def search_userinfo_from_name(name:str):
-    conn = sqlite3.connect(DB_NAME)
-    c=conn.cursor()
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
-    res = c.fetchall()
-    #レコードのフォーマット↓
-    #display,name,email,isAdmin,solt,passwd,activate_flag,uuid
-    conn.close()
-    return res #ユーザーのレコードを配列として返す
+    res = CAS_userLib.getUserInfo(name,SYSTEM_TOKEN)
+    return res[1]
+
 
 #全ユーザー登録情報一覧
 def get_all_users():
-    conn = sqlite3.connect(DB_NAME)
+    res = CAS_userLib.getAllUserInfo(SYSTEM_TOKEN)
+    return res[1] #ユーザー登録情報を配列として返す
+
+#有効なトークンの有効性検証結果とユーザ名の応答        
+def cktoken(conn,name:str,token:str):
     c=conn.cursor()
-    sql = '''
-        SELECT * FROM "pcc-users"
-    '''
-    c.execute(sql)
+    c.execute(f'''SELECT * from {DB_NAME}.{TABLE_NAME_LOGIN} WHERE token = "{token}"''')
     res = c.fetchall()
-    return res #ユーザー登録情報を配列として返す
-
-#ユーザー登録情報更新
-def update_user_info(old_uname:str,column:str,new_data:str):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    prev_userinfo = search_userinfo_from_name(old_uname)
-
-    sql1 = f'''
-        UPDATE "pcc-users" SET "{column}" = "{new_data}" WHERE name = "{old_uname}"
-    '''
-    c.execute(sql1)
     conn.commit()
-    
-    new_userinfo = search_userinfo_from_name(old_uname)
+    c.close()
 
-    return prev_userinfo,new_userinfo
-
-#有効なトークンの有効性検証結果とユーザ名の応答
-def cktoken(name:str,token:str):
-    conn = sqlite3.connect(DB_NAME)
-    c=conn.cursor()
-    #ユーザの登録有無
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" ''')
-    suser_res = c.fetchall()
-    
-    #トークンがすでに存在しているか
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE accessToken == "{token}" ''')
-    token_res = c.fetchall()
-
-    #ログインが正しいか
-    c.execute(f'''SELECT * FROM "pcc-users" WHERE name == "{name}" AND accessToken == "{token}"''')
-    usr_token_res = c.fetchall()
-    #レコードのフォーマット↓
-    #name,email,isAdmin,solt,passwd,activate_flag,uuid,accessToken
-    conn.close()
-
-    if len(suser_res) == 0:
-        #ユーザ登録なし
-        return "Not Submit" ,0
+    if len(res) == 0:
+        return "NoUsername",False
     else:
-        if len(token_res) == 0 : #ほかにログインしている可能性あり
-            #nameが存在かつ、NoTokenではないTokenが存在
-            return name,1
-        elif str(token_res[0][8]) == "NoToken": #ログインなし/トークンの期限切れ
-            #nameが存在かつ、NoTokenである
-            return "NoUname",2
-        else:#ユーザのトークンが有効(ログイン状態である)
-            name = token_res[0][1]
-            #トークンの時間制限をリセットする処理を書きたい
-            return str(name),3
+        return name,True
 
 #トークン更新
 def update_token(uname:str,new_token:str):

@@ -10,7 +10,9 @@ import userSubmit,itemSubmit
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
-VERSION = 'ver.2.2'
+VERSION = 'ver.3.0'
+
+conn = dbc.startConnection()
 
 #初期化処理
 def init():
@@ -58,10 +60,10 @@ def index():
         pwchangeFlag = dbc.ckpwdchange(uname=uname)
         if pwchangeFlag == 1:
             return redirect('/pwdchange')
-        uname,login_status = dbc.cktoken(uname,token)
-        if login_status == 3: #ログイン状態である
+        login_status = dbc.cktoken(conn,uname,token)
+        if login_status[1] == True: #ログイン状態である
             return render_template('dashboard.html',uname = displayname,ver=VERSION)
-        elif login_status == 1 or login_status == 2:
+        elif login_status[1] == False:
             return redirect('/login')
         
 @app.route('/favicon.ico')
@@ -107,7 +109,7 @@ def login():
 
                 return "444",444 #ログインエラーのレス
             else:
-                uname , login_sta = dbc.cktoken(uname,str(token))
+                uname , login_sta = dbc.cktoken(conn,uname,str(token))
                 
                 if(login_sta == 3):
                     pass
@@ -125,10 +127,10 @@ def login():
         if token is None:
             return render_template('login.html')
         else:
-            uname,login_sta = dbc.cktoken(uname,token)
-            if login_sta == 1 or login_sta==2 or login_sta==0:
+            ckflag = dbc.cktoken(conn,uname,token)
+            if ckflag[1] == False:
                 return render_template('login.html')
-            elif login_sta == 3:
+            elif ckflag == True:
                 return redirect('/')
 
 @app.after_request
@@ -151,41 +153,18 @@ def logout():
 
     return res
 
-@app.route('/user_settings',methods=['GET','POST'])
+@app.route('/user_settings',methods=['GET'])
 def user_settings():
 
-    if request.method == 'POST':
-        uname = request.cookies.get('uname')
-        token = request.cookies.get('token')
+    uname = request.cookies.get('uname')
+    token = request.cookies.get('token')
+    displayname = request.cookies.get('displayname')
 
-        uname,login_status = dbc.cktoken(uname,token)
-        if login_status != 3:
-            return redirect('/login')
-        else:
-            currentPWD = hashlib.sha256(request.json[0]['currentPWD'].encode("utf-8")).hexdigest()
-            newPWD = hashlib.sha256(request.json[0]['newPWD'].encode("utf-8")).hexdigest()
-
-            uinfo = dbc.search_userinfo_from_name(uname)
-            if uinfo[0][5] != currentPWD:
-                return "444",444
-            elif uinfo[0][5] == currentPWD:
-                #パスワード変更処理
-                previnfo,newinfo = dbc.update_user_info(uname,'passwd',newPWD)
-                newuinfo = dbc.search_userinfo_from_name(uname)
-                return "415",415
-
-
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
+        return redirect('/login')
     else:
-
-        uname = request.cookies.get('uname')
-        token = request.cookies.get('token')
-        displayname = request.cookies.get('displayname')
-
-        uname,login_status = dbc.cktoken(uname,token)
-        if login_status != 3:
-            return redirect('/login')
-        else:
-            return render_template('user_settings.html',uname=displayname,ver=VERSION)
+        return render_template('user_settings.html',uname=displayname,ver=VERSION)
         
 @app.route('/pwdchange')
 def pwdchange():
@@ -193,27 +172,11 @@ def pwdchange():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         return render_template('passwd_change.html',uname=displayname,ver=VERSION)
-        
-@app.route('/user_settings_discord',methods=['POST'])
-def user_settings_discord():
-    
-    uname = request.cookies.get('uname')
-    token = request.cookies.get('token')
-
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
-        return redirect('/login')
-    else:
-        newDiscord = request.json[0]['newDiscord']
-        uinfo = dbc.search_userinfo_from_name(uname)
-        #Discordのユーザ名変更処理
-        previnfo,newinfo = dbc.update_user_info(uname,'discord',newDiscord)
-        return "OK",200
     
 @app.route('/my_rental_list')
 def my_rental_list():
@@ -221,8 +184,8 @@ def my_rental_list():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    uname,login_status = dbc.cktoken(conn,uname,token)
+    if login_status != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -236,8 +199,8 @@ def pcc_items():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    uname,login_status = dbc.cktoken(conn,uname,token)
+    if login_status != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -251,8 +214,8 @@ def members():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    uname,login_status = dbc.cktoken(conn,uname,token)
+    if login_status != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -265,8 +228,8 @@ def show_members():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         res = dbc.get_all_users()
@@ -289,8 +252,8 @@ def show_my_rental_list():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         res = dbc.sarch_rent_items(displayname)
@@ -314,8 +277,8 @@ def show_all_rental_list():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         res = dbc.get_rent_items()
@@ -339,8 +302,8 @@ def show_all_rental_history():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         res = dbc.get_rent_history()
@@ -364,8 +327,8 @@ def show_pcc_items():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         res = dbc.get_all_items()
@@ -388,8 +351,8 @@ def return_item():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         rental_id = request.json[0]['rental_id']
@@ -408,8 +371,8 @@ def rental_item():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(uname,token)
-    if login_status != 3:
+    ckFlag = dbc.cktoken(conn,uname,token)
+    if ckFlag != True:
         return redirect('/login')
     else:
         item_number = request.json[0]['item_number']
@@ -431,33 +394,7 @@ def admintools_top():
 @auth.login_required
 def admintools(page):
     return render_template('admintools/'+page+'.html',ver=VERSION)
-
-@app.route('/admintools/pcc-rent.db')
-@auth.login_required
-def admintools_dlfile():
-    #dlname = 'pcc-rent'+datetime.datetime.now().strftime('%Y%m%d%H%M')+'.db'
-    #mimetype='application/octet-stream'
-    #dir = os.path.abspath(__file__)[:-7]
-    return send_file('pcc-rent.db',as_attachment=True)
-
-@app.route('/admintools/submitusers/<string:mode>',methods=['POST'])
-@auth.login_required
-def submitusers(mode):
-    if mode == 'submit':
-        submit_contents = str(request.json['content'])
-        with open('userList.csv','w',encoding='utf-8') as f:
-            f.write(submit_contents)
-
-        userSubmit.userSubmit()
-        return "OK"
-    elif mode == 'delete':
-        delete_contents = str(request.json['content'])
-        with open('deluserList.csv','w',encoding='utf-8') as f:
-            f.write(delete_contents)
-        
-        userSubmit.userDelete()
     
-
 @app.route('/admintools/submititems/<string:mode>',methods=['POST'])
 @auth.login_required
 def submititems(mode):
@@ -483,7 +420,7 @@ def submititems(mode):
 @auth.login_required
 def sqlexecute():
     sqlcmd = str(request.json['sqlcmd'])
-    result = dbc.sqlExecute(True,sqlcmd)
+    result = dbc.sqlExecute(conn,True,sqlcmd)
     data = {'content':result}
     print(data['content'])
     return data['content'],200
