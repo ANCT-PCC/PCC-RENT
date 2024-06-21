@@ -6,7 +6,7 @@ import sqlite3
 import json
 import hashlib
 import datetime
-import userSubmit,itemSubmit
+import itemSubmit
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
