@@ -1,0 +1,31 @@
+services:
+  pcc-rent-db:
+    image: mysql:latest
+    hostname: pcc-rent-db
+    restart: always
+    container_name: pcc-rent-db
+    platform: linux/amd64
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Kusopass
+      MYSQL_DATABASE: pcc_rent
+      TZ: "Asia/Tokyo"
+    volumes:
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql:/var/lib/mysql
+
+  pcc-rent:
+    container_name: pcc-rent
+    hostname: pcc-rent
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - "pcc-rent-db"
+    ports:
+      - 4545:8080
+    restart: always
+    tty: true
+    volumes:
+      - ./running:/PCC_RENT

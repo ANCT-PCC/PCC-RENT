@@ -2,14 +2,14 @@ import sqlite3,json,datetime
 import random,string
 import json
 import subprocess
-import hashlib
 import mysql.connector
-import CAS_userLib
+import CAS_userLib,CASAuth
 
-DB_SERVER = 'pcc-rent-db'
-#DB_SERVER='127.0.0.1'
+#DB_SERVER = 'pcc-rent-db'
+DB_SERVER='127.0.0.1'
 DB_NAME = 'pcc_rent'
 DB_PASSWD = 'Kusopass'
+DB_PORT='13306'
 
 TABLE_NAME_LOGIN = 'pcc_login'
 TABLE_NAME_ITEMS = 'pcc_items'
@@ -26,7 +26,7 @@ INIT_SQL_COMMAND_1 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_LOGIN}
 INIT_SQL_COMMAND_2 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_ITEMS}(
     number VARCHAR(255) NOT NULL PRIMARY KEY,
     item_name TEXT,
-    desc TEXT,
+    explanation TEXT,
     resource TEXT,
     rental TEXT,
     picture TEXT,
@@ -36,7 +36,7 @@ INIT_SQL_COMMAND_2 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_ITEMS}
 INIT_SQL_COMMAND_3 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_RENTALS}(
     number TEXT,
     item_name TEXT,
-    use TEXT,
+    purpose TEXT,
     rentby TEXT,
     rent TEXT,
     deadline TEXT,
@@ -52,7 +52,7 @@ except FileNotFoundError:
     print("[PCC-RENT] ERROR: setting_files/CAS_token.json NOT FOUND.")
     exit()
 
-SYSTEM_TOKEN = casToken['token']
+SYSTEM_TOKEN = casToken['CAS_Token']
 print(f"PCC-CAS TOKEN : {SYSTEM_TOKEN}")
 
 #MySQL接続
@@ -61,8 +61,7 @@ def startConnection():
         host=DB_SERVER,
         user='root',
         password=DB_PASSWD,
-        database=DB_NAME,
-        port='3306'
+        port=DB_PORT
     )
     return conn
 
@@ -123,32 +122,35 @@ def cktoken(conn,name:str,token:str):
         return name,True
 
 #トークン更新
-def update_token(uname:str,new_token:str):
-    conn = sqlite3.connect(DB_NAME)
+def update_token(conn,uname:str,new_token:str):
     c = conn.cursor()
 
     sql1 = f'''
-        UPDATE "pcc-users" SET accessToken = "{new_token}" WHERE name = "{uname}"
+        INSERT IGNORE INTO {DB_NAME}.{TABLE_NAME_LOGIN} VALUES("{uname}","{new_token}");
     '''
     c.execute(sql1)
+    conn.commit()
+
+    sql2 = f'''
+        UPDATE {DB_NAME}.{TABLE_NAME_LOGIN} SET token = "{new_token}" WHERE username = "{uname}"
+    '''
+    c.execute(sql2)
     conn.commit()
 
 #ユーザのパスワード未変更を検出
 def ckpwdchange(uname:str):
     res = search_userinfo_from_name(uname)
-    if len(res) == 0:
-        return 1
-    uname_hash = hashlib.sha256(uname.encode('utf-8')).hexdigest()
-    applied_passwd = res[0][5] #現在設定されているパスワード
-    old_temp_passwd_hash = uname_hash #初期パスワード(改定前)
-    new_temp_passwd = 'Kusopass@'+uname[1:]
-    new_temp_passwd_hash = hashlib.sha256(new_temp_passwd.encode('utf-8')).hexdigest() #初期パスワード(改定後)
+    print(res)
 
-    if applied_passwd == old_temp_passwd_hash or applied_passwd == new_temp_passwd_hash:
-        return 1 #パスワードが未変更
+    if res[7] == 'False':
+        return 1
     else:
         return 0
-
+    
+#ユーザ認証を行う
+def authUser(uname:str,passwd:str):
+    res = CASAuth.Authenticate(username=uname,password=passwd,system_token=SYSTEM_TOKEN)
+    return res[1]
 
 #################################################################
 

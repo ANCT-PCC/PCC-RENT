@@ -1,4 +1,4 @@
-const SERVER_ADDR = 'http://localhost:8080/'
+const SERVER_ADDR = 'http://localhost:8081/'
 const $logout_button = document.getElementById('logout_button');
 
 

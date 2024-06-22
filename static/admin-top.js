@@ -1,4 +1,4 @@
-const SERVER_ADDR = 'http://localhost:8080/'
+const SERVER_ADDR = 'http://localhost:8081/'
 const $MOVE_DB = document.getElementById('move_db')
 const $MOVE_ITEM = document.getElementById('move_item')
 

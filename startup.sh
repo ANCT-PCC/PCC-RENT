@@ -1,6 +1,7 @@
 #!/bin/bash
-PREV_ADDR='http://localhost:8080/'
-SERVER_ADDR='http://192.168.200.100:8080/'
+PREV_ADDR='http://localhost:8081/'
+SERVER_ADDR='http://192.168.200.100:8081/'
+CAS_SERVER_ADDR='http://192.168.200.100:8080/'
 
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/login.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/admin-db.js
@@ -14,5 +15,7 @@ sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/my_rental_list.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/passwd_change.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/pcc-items.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/user_settings.js
+
+sed -i -e s#http://localhost:8080/#$CAS_SERVER_ADDR#g templates/user_settings.html
 
 python run.py

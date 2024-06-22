@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker stop pcc-rent
+docker-compose stop
 docker rm pcc-rent
-docker rmi pcc-rent
-docker volume remove pcc-rent
+docker rm pcc-rent-db
+docker rmi pcc-rent-pcc-rent
