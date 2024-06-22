@@ -5,11 +5,13 @@ import subprocess
 import mysql.connector
 import CAS_userLib,CASAuth
 
-#DB_SERVER = 'pcc-rent-db'
-DB_SERVER='127.0.0.1'
+#DB_SERVER = 'pcc-rent-db' #コンテナ間通信用
+DB_SERVER='127.0.0.1' #試験用
+
+DB_PORT='13306' #試験用
+#DB_PORT='3306' #Dockerコンテナ間通信用
 DB_NAME = 'pcc_rent'
 DB_PASSWD = 'Kusopass'
-DB_PORT='13306'
 
 TABLE_NAME_LOGIN = 'pcc_login'
 TABLE_NAME_ITEMS = 'pcc_items'

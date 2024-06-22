@@ -2,9 +2,7 @@ from flask import Flask, redirect, url_for, render_template, request,make_respon
 from flask_httpauth import HTTPDigestAuth
 import dbc
 import random,string
-import sqlite3
 import json
-import hashlib
 import datetime
 import itemSubmit
 
