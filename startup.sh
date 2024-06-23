@@ -17,6 +17,6 @@ sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/passwd_change.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/pcc-items.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/user_settings.js
 
-sed -i -e s#http://localhost:8080/#$CAS_SERVER_ADDR#g templates/user_settings.html
+sed -i -e s#http://127.0.0.1:8080/#$CAS_SERVER_ADDR#g templates/user_settings.html
 
 python run.py

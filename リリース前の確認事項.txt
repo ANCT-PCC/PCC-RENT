@@ -1,0 +1,3 @@
+Discord通知用のWebhookアドレスをANCT-PCCのものにしたか
+CAS_userLib.pyとCASAuth.pyのCAS_ADDRを正しいアドレスに設定したか
+startup.shに記載のアドレスは、PCC-RENTのアドレスを設定する。正しく設定されているか

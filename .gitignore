@@ -6,3 +6,4 @@ pcc-rent.db
 setting_files
 mysql
 my.cnf
+*-e
