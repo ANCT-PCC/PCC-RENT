@@ -105,15 +105,15 @@ def search_userinfo_from_name(name:str):
     return res[1]
 
 
-#全ユーザー登録情報一覧
+#PCC-CASより、全ユーザー登録の情報を取得
 def get_all_users():
     res = CAS_userLib.getAllUserInfo(SYSTEM_TOKEN)
     return res[1] #ユーザー登録情報を配列として返す
 
 #有効なトークンの有効性検証結果とユーザ名の応答        
 def cktoken(conn,name:str,token:str):
-    c=conn.cursor()
-    c.execute(f'''SELECT * from {DB_NAME}.{TABLE_NAME_LOGIN} WHERE token = "{token}"''')
+    c=conn.cursor(buffered=True)
+    c.execute(f'''SELECT * from {DB_NAME}.{TABLE_NAME_LOGIN} WHERE token = "{token}";''')
     res = c.fetchall()
     conn.commit()
     c.close()
@@ -142,7 +142,6 @@ def update_token(conn,uname:str,new_token:str):
 #ユーザのパスワード未変更を検出
 def ckpwdchange(uname:str):
     res = search_userinfo_from_name(uname)
-    print(res)
 
     if res[7] == 'False':
         return 1
@@ -161,128 +160,128 @@ def authUser(uname:str,passwd:str):
 #################################################################
 
 #備品を登録する
-def create_new_item(number:str,name:str,desc:str,resource:str,rental:str,picture:str):
-    conn = sqlite3.connect(DB_NAME)
+def create_new_item(conn,number:str,name:str,desc:str,resource:str,rental:str,picture:str):
     c = conn.cursor()
     #テーブルがなければ作成
     c.execute(INIT_SQL_COMMAND_2)
     data = (number,name,desc,resource,rental,picture,'NoSet')
     #テーブルに登録情報を記録
     sql = f'''
-        INSERT INTO "pcc-items" VALUES(?,?,?,?,?,?,?)
-        EXCEPT
-        SELECT * FROM "pcc-items" WHERE number == '{number}'
+            INSERT IGNORE INTO {DB_NAME}.{TABLE_NAME_ITEMS} VALUES('{number}','{name}','{desc}','{resource}','{rental}','{picture}','NoSet')
         '''
-    c.execute(sql,data)
+    c.execute(sql)
     #コミット(変更を反映)
     conn.commit()
     c.close()
     return 0
 
 #備品を削除
-def delete_item(number:str):
-    conn = sqlite3.connect(DB_NAME)
+def delete_item(conn,number:str):
     c = conn.cursor()
     #備品削除
-    c.execute(f'''DELETE FROM "pcc-items" WHERE number == '{number}' ''')
+    c.execute(f'''DELETE FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = '{number}' ''')
     conn.commit()
     c.close()
 
 #備品を検索(名前から)
-def search_iteminfo_from_name(name:str):
-    conn = sqlite3.connect(DB_NAME)
+def search_iteminfo_from_name(conn,name:str):
     c=conn.cursor()
     res =[]
-    for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE item_name == '{name}' '''):
+    for i in c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE item_name = '{name}' '''):
         res = json.loads(json.dumps(i,ensure_ascii=False))
-    conn.close()
+    c.close()
     return res #備品のレコードを配列として返す
 
 #備品を検索(備品番号から)
-def search_iteminfo_from_number(number:str):
-    conn = sqlite3.connect(DB_NAME)
+def search_iteminfo_from_number(conn,number:str):
     c=conn.cursor()
-    res =[]
-    for i in c.execute(f'''SELECT * FROM "pcc-items" WHERE number == '{number}' '''):
-        res = json.loads(json.dumps(i,ensure_ascii=False))
-    conn.close()
+    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = '{number}' ''')
+    res = c.fetchall()
+    c.close()
     return res #備品のレコードを配列として返す
 
 #ユーザの貸し出し備品を検索(備品番号から)
-def search_userrentalinfo_from_number(number:str):
-    conn = sqlite3.connect(DB_NAME)
+def search_userrentalinfo_from_number(conn,number:str):
     c=conn.cursor()
     res =[]
-    c.execute(f'''SELECT * FROM "pcc-rental" WHERE number == '{number}' ''')
+    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_RENTALS} WHERE number = '{number}' ''')
     res = c.fetchall()
-    conn.close()
+    c.close()
     return res #備品のレコードを配列として返す
     
 
 #備品を借用(履歴に記録)
-def rent_item(item_number:str,item_name:str,use:str,rentby:str,uname:str):
-    conn = sqlite3.connect(DB_NAME)
+def rent_item(conn,item_number:str,item_name:str,use:str,rentby:str,uname:str):
     c = conn.cursor()
     #テーブルがなければ作成
     c.execute(INIT_SQL_COMMAND_3)
     #res =[]
-    c.execute(f'''SELECT * FROM "pcc-rental" WHERE number == '{item_number}' AND returned == '貸し出し中' AND rental_id == 'NotSet' ''')
+    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_RENTALS} WHERE number = '{item_number}' AND returned = '貸し出し中' AND rental_id = 'NotSet' ''')
     res = c.fetchall()
 
     if len(res)==0:
-        sql = f'''
-            INSERT INTO "pcc-rental" VALUES(?,?,?,?,?,?,?,?)
-        '''
         timestamp = datetime.datetime.now()
         deadline = timestamp + datetime.timedelta(days=14)
         rental_id = ''.join(random.choices(string.ascii_letters + string.digits, k=TOKEN_SIZE))
-        data = (item_number,item_name,use,rentby,timestamp.strftime('%Y年%m月%d日 %H:%M'),deadline.strftime('%Y年%m月%d日'),'貸し出し中',rental_id)
-        c.execute(sql,data)
+
+        sql = f'''
+            INSERT INTO {DB_NAME}.{TABLE_NAME_RENTALS} VALUES(
+            '{item_number}',
+            '{item_name}',
+            '{use}',
+            '{rentby}',
+            '{timestamp.strftime('%Y年%m月%d日 %H:%M')}',
+            '{deadline.strftime('%Y年%m月%d日')}',
+            '貸し出し中',
+            '{rental_id}'
+            )
+        '''
+
+        c.execute(sql)
         sql2 = f'''
-            UPDATE "pcc-items" SET rental = '{rentby}' WHERE number = '{item_number}'
+            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental = '{rentby}' WHERE number = '{item_number}'
         '''
         sql3 = f'''
-            UPDATE "pcc-items" SET rental_id = '{rental_id}' WHERE number = '{item_number}'
+            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental_id = '{rental_id}' WHERE number = '{item_number}'
         '''
         c.execute(sql2)
         c.execute(sql3)
         conn.commit()
-        conn.close()
+        c.close()
 
         #Discord 借用通知
         message = f"備品番号{item_number}:「{item_name}」を **借用** しました"
         
-        userinfo = search_userinfo_from_name(uname)[0]
-        displayname = userinfo[0]
+        userinfo = search_userinfo_from_name(uname)
+        displayname = userinfo[3]
         discord_message(message,displayname+' '+uname)
 
         return 0
     else:
         print(f"借用が重複している可能性があります: {item_number}")
         conn.commit()
-        conn.close()
+        c.close()
 
         return -1
 
 #備品を返却(履歴に記録)
-def return_item(rental_id:str,returnedby:str):
-    conn = sqlite3.connect(DB_NAME)
+def return_item(conn,rental_id:str,returnedby:str):
     c = conn.cursor()
     timestamp = datetime.datetime.now()
-    c.execute(f'''SELECT * FROM "pcc-rental" WHERE rental_id = "{rental_id}"''')
+    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_RENTALS} WHERE rental_id = "{rental_id}"''')
     info = c.fetchall()
-    c.execute(f'''UPDATE "pcc-rental" SET returned = '返却済み:<br>{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id == '{rental_id}' ''')
+    c.execute(f'''UPDATE {DB_NAME}.{TABLE_NAME_RENTALS} SET returned = '返却済み:<br>{timestamp.strftime('%Y年%m月%d日 %H:%M')}' WHERE rental_id = '{rental_id}' ''')
     
     sql3 = f'''
-        UPDATE "pcc-items" SET rental = 'なし' WHERE rental_id = '{rental_id}'
+        UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental = 'なし' WHERE rental_id = '{rental_id}'
     '''
     sql4 = f'''
-        UPDATE "pcc-items" SET rental_id = 'NoSet' WHERE rental_id = '{rental_id}'
+        UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental_id = 'NoSet' WHERE rental_id = '{rental_id}'
     '''
     c.execute(sql3)
     c.execute(sql4)
     conn.commit()
-    conn.close()
+    c.close()
 
     #Discord 返却通知
     item_number = info[0][0]
@@ -293,34 +292,34 @@ def return_item(rental_id:str,returnedby:str):
     return 0
 
 #借りられている備品を検索
-def get_rent_items():
-    conn = sqlite3.connect(DB_NAME)
+def get_rent_items(conn):
     c=conn.cursor()
-    sql = '''
-        SELECT * FROM "pcc-rental"
+    sql = f'''
+        SELECT * FROM {DB_NAME}.{TABLE_NAME_RENTALS}
     '''
     c.execute(sql)
     res = c.fetchall()
+    c.close()
     return res #備品登録情報を配列として返す
 
 #ユーザが借りている備品を検索
-def sarch_rent_items(uname:str):
-    conn = sqlite3.connect(DB_NAME)
+def sarch_rent_items(conn,uname:str):
     c=conn.cursor()
     sql = f'''
-        SELECT * FROM "pcc-rental" WHERE rentby == "{uname}"
+        SELECT * FROM {DB_NAME}.{TABLE_NAME_RENTALS} WHERE rentby = "{uname}"
     '''
     c.execute(sql)
     res = c.fetchall()
+    c.close()
     return res #備品登録情報を配列として返す
 
 #全備品登録情報一覧
-def get_all_items():
-    conn = sqlite3.connect(DB_NAME)
+def get_all_items(conn):
     c=conn.cursor()
-    sql = '''
-        SELECT * FROM "pcc-items"
+    sql = f'''
+        SELECT * FROM {DB_NAME}.{TABLE_NAME_ITEMS}
     '''
     c.execute(sql)
     res = c.fetchall()
+    c.close()
     return res #備品登録情報を配列として返す

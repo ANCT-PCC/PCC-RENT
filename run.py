@@ -58,7 +58,6 @@ def index():
         if pwchangeFlag == 1:
             return redirect('/pwdchange')
         login_status = dbc.cktoken(conn,uname,token)
-        print(f"ルート: {login_status[1]}")
         if login_status[1] == True: #ログイン状態である
             return render_template('dashboard.html',uname = displayname,ver=VERSION)
         elif login_status[1] == False:
@@ -77,7 +76,6 @@ def login():
         passwd = res['passwd']
         
         uinfo = dbc.authUser(uname,passwd)
-        print(f'ユーザ情報: {uinfo}')
         if uinfo['login_status'] == 0 or uinfo['login_status'] == 2:
             token = randomname(TOKEN_SIZE=TOKEN_SIZE) #一意のトークン
             displayname = dbc.search_userinfo_from_name(uname)[3]
@@ -95,11 +93,9 @@ def login():
             #サブプロセスでタイマーを作動
             dbc.update_token(conn,uname,token)
 
-            print("普通にログインできている")
             return res
 
         else:
-            print('認証失敗')
             return "444",444
     
     elif request.method == 'GET':
@@ -165,8 +161,8 @@ def my_rental_list():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(conn,uname,token)
-    if login_status != True:
+    login_status = dbc.cktoken(conn,uname,token)
+    if login_status[1] != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -180,8 +176,8 @@ def pcc_items():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(conn,uname,token)
-    if login_status != True:
+    login_status = dbc.cktoken(conn,uname,token)
+    if login_status[1] != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -195,8 +191,8 @@ def members():
     token = request.cookies.get('token')
     displayname = request.cookies.get('displayname')
 
-    uname,login_status = dbc.cktoken(conn,uname,token)
-    if login_status != True:
+    login_status = dbc.cktoken(conn,uname,token)
+    if login_status[1] != True:
         return redirect('/login')
     else:
         flag = dbc.ckpwdchange(uname)
@@ -237,7 +233,7 @@ def show_my_rental_list():
     if ckFlag[1] != True:
         return redirect('/login')
     else:
-        res = dbc.sarch_rent_items(displayname)
+        res = dbc.sarch_rent_items(conn,displayname)
         rental_info = []
 
         for flag in range(len(res)):
@@ -262,7 +258,7 @@ def show_all_rental_list():
     if ckFlag[1] != True:
         return redirect('/login')
     else:
-        res = dbc.get_rent_items()
+        res = dbc.get_rent_items(conn)
         rental_info = []
 
         for flag in range(len(res)):
@@ -278,31 +274,6 @@ def show_all_rental_list():
 
         return json.dumps(rental_info)
     
-@app.route('/show_all_rental_history')
-def show_all_rental_history():
-    uname = request.cookies.get('uname')
-    token = request.cookies.get('token')
-
-    ckFlag = dbc.cktoken(conn,uname,token)
-    if ckFlag[1] != True:
-        return redirect('/login')
-    else:
-        res = dbc.get_rent_history()
-        rental_info = []
-
-        for flag in range(len(res)):
-            dict = {}
-            dict['number']=str(res[flag][0])
-            dict['item_name']=str(res[flag][1])
-            dict['use']=str(res[flag][2])
-            dict['rentby']=str(res[flag][3])
-            dict['type']=str(res[flag][4])
-            dict['timestamp']=str(res[flag][5])
-            dict['deadline']=str(res[flag][6])
-            rental_info.append(dict)
-
-        return json.dumps(rental_info)
-    
 @app.route('/show_pcc-items')
 def show_pcc_items():
     uname = request.cookies.get('uname')
@@ -312,7 +283,7 @@ def show_pcc_items():
     if ckFlag[1] != True:
         return redirect('/login')
     else:
-        res = dbc.get_all_items()
+        res = dbc.get_all_items(conn)
         item_info = []
 
         for flag in range(len(res)):
@@ -337,10 +308,10 @@ def return_item():
         return redirect('/login')
     else:
         rental_id = request.json[0]['rental_id']
-        userinfo = dbc.search_userinfo_from_name(uname)[0]
-        displayname = userinfo[0]
+        userinfo = dbc.search_userinfo_from_name(uname)
+        displayname = userinfo[3]
         
-        res = dbc.return_item(rental_id=rental_id,returnedby=displayname+' '+uname)
+        res = dbc.return_item(conn,rental_id=rental_id,returnedby=displayname+' '+uname)
         if res == 0:
             return "OK",200
         else:
@@ -350,16 +321,17 @@ def return_item():
 def rental_item():
     uname = request.cookies.get('uname')
     token = request.cookies.get('token')
-    displayname = request.cookies.get('displayname')
 
     ckFlag = dbc.cktoken(conn,uname,token)
     if ckFlag[1] != True:
         return redirect('/login')
     else:
         item_number = request.json[0]['item_number']
-        item_name = dbc.search_iteminfo_from_number(item_number)[1]
+        userinfo = dbc.search_userinfo_from_name(uname)
+        item_name = dbc.search_iteminfo_from_number(conn,item_number)[0][1]
+        print(f'デバッグ{item_name}')
         use = '未記載'
-        res = dbc.rent_item(item_number,item_name,use,displayname,uname)
+        res = dbc.rent_item(conn,item_number,item_name,use,userinfo[3],uname)
 
         if res == 0:
             return "OK",200
@@ -403,7 +375,6 @@ def sqlexecute():
     sqlcmd = str(request.json['sqlcmd'])
     result = dbc.sqlExecute(conn,True,sqlcmd)
     data = {'content':result}
-    print(data['content'])
     return data['content'],200
 
 
