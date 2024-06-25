@@ -1,2 +1,0 @@
-PCC-RENTとPCC-CASのアカウント統合は終わったので
-PCC-RENT側の備品管理機能のMySQL移行作業をする
