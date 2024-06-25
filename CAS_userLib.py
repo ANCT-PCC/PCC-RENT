@@ -1,7 +1,7 @@
 import json,requests
 
 #接続先情報
-CAS_ADDR = 'https://testenv.nemnet-lab.net/' #リモートサーバ
+CAS_ADDR = 'https://pcc-cas.nemnet-lab.net/' #リモートサーバ
 
 #PCC-CASからユーザ登録情報をjson形式で取得します
 #トークンが違う/鯖落ちの場合は、ステータスコードが200ではありません

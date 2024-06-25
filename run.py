@@ -329,7 +329,6 @@ def rental_item():
         item_number = request.json[0]['item_number']
         userinfo = dbc.search_userinfo_from_name(uname)
         item_name = dbc.search_iteminfo_from_number(conn,item_number)[0][1]
-        print(f'デバッグ{item_name}')
         use = '未記載'
         res = dbc.rent_item(conn,item_number,item_name,use,userinfo[3],uname)
 
@@ -379,6 +378,4 @@ def sqlexecute():
 
 
 init(conn)
-print("Access: http://localhost:8081/")
-#app.run(port=443,host="0.0.0.0",debug=True,ssl_context=context,threaded=True)
 app.run(port=8081,host="0.0.0.0",debug=True,threaded=True)

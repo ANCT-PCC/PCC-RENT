@@ -1,8 +1,8 @@
 #!/bin/bash
 PREV_ADDR='http://localhost:8081/'
-SERVER_ADDR='http://localhost:8081/'
+SERVER_ADDR='http://pcc-rent.nemnet-lab.net/'
 
-CAS_SERVER_ADDR='https://testenv.nemnet-lab.net/'
+CAS_SERVER_ADDR='https://pcc-cas.nemnet-lab.net/'
 
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/login.js
 sed -i -e s#$PREV_ADDR#$SERVER_ADDR#g static/admin-db.js
