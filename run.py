@@ -356,14 +356,14 @@ def submititems(mode):
         with open('itemList.csv','w',encoding='utf-8') as f:
             f.write(submit_contents)
 
-        itemSubmit.itemSubmit()
+        itemSubmit.itemSubmit(conn)
         return "OK"
     elif mode == 'delete':
         delete_contents = str(request.json['content'])
         with open('delitemList.csv','w',encoding='utf-8') as f:
             f.write(delete_contents)
 
-        itemSubmit.itemDelete()
+        itemSubmit.itemDelete(conn)
         return "OK"
     else:
         return "404",404

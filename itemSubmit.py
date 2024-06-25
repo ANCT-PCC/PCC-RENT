@@ -1,8 +1,6 @@
 import dbc,csv
 
-conn = dbc.startConnection()
-
-def itemSubmit():
+def itemSubmit(conn):
     csvfile = open("itemList.csv","r",encoding="utf-8")
 
     file = csv.reader(csvfile, delimiter=",", doublequote=True, lineterminator="\r\n", quotechar='"', skipinitialspace=True)
@@ -17,7 +15,7 @@ def itemSubmit():
 
     csvfile.close()
 
-def itemDelete():
+def itemDelete(conn):
     csvfile = open("delitemList.csv","r",encoding="utf-8")
 
     file = csv.reader(csvfile, delimiter=",", doublequote=True, lineterminator="\r\n", quotechar='"', skipinitialspace=True)
@@ -33,4 +31,5 @@ def itemDelete():
     csvfile.close()
 
 if __name__ == '__main__':
-    itemSubmit()
+    conn = dbc.startConnection()
+    itemSubmit(conn)
