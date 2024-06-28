@@ -8,7 +8,7 @@ import itemSubmit
 
 TOKEN_SIZE = 64 #トークンのサイズ
 COOKIE_AGE = 1 #Cookieの有効期限(単位:h)
-VERSION = 'ver.3.0'
+VERSION = 'ver.3.1'
 
 conn = dbc.startConnection()
 
