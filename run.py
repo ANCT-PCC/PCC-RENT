@@ -380,10 +380,10 @@ def sqlexecute():
 #キープアライブ
 @app.route('/keepalv')
 def keepalv():
-    sql = f'''
-        SELECT keepalive from {dbc.DB_NAME}.keepalive
-        '''
-    res = dbc.sqlExecute(conn,sql)
+    sql2 = f'''
+        INSERT IGNORE INTO {dbc.DB_NAME}.keepalive VALUES('{datetime.datetime.now().strftime('%Y年%m月%d日 %H:%M')}')
+    '''
+    res = dbc.sqlExecute(conn,True,sql2)
 
     return json.dumps({'contents':res}),200
 
