@@ -21,6 +21,7 @@ def init(conn):
     c.execute(dbc.INIT_SQL_COMMAND_1)
     c.execute(dbc.INIT_SQL_COMMAND_2)
     c.execute(dbc.INIT_SQL_COMMAND_3)
+    c.execute(dbc.INIT_SQL_COMMAND_4)
     conn.commit()
     res = dbc.sqlExecute(conn,True,command)
     print(f"\nアクセストークン初期化を実行\n")
@@ -375,6 +376,16 @@ def sqlexecute():
     result = dbc.sqlExecute(conn,True,sqlcmd)
     data = {'content':result}
     return data['content'],200
+
+#キープアライブ
+@app.route('/keepalv')
+def keepalv():
+    sql = f'''
+        SELECT keepalive from {dbc.DB_NAME}.keepalive
+        '''
+    res = dbc.sqlExecute(conn,sql)
+
+    return json.dumps({'contents':res}),200
 
 
 init(conn)

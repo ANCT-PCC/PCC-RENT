@@ -26,7 +26,7 @@ services:
     depends_on:
       - "pcc-rent-db"
     ports:
-      - 4545:8080
+      - 8080:8081
     restart: always
     tty: true
     volumes:

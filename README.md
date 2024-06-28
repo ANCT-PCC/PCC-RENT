@@ -1,27 +1,35 @@
-# 備品管理システム「PCC-RENT」
-## どんなシステム
-・備品を管理するよ  
-・全ユーザ/ユーザごとに借用履歴を表示できるよ  
-・「借りた」「返した」の通知はDiscordでお知らせ！  
-・弊部の基幹認証システム「PCC-CAS」のアカウントを使うよ  
-・学内ネットワークからしかアクセスできないと不便なので、サーバは開発者(Discord: networld4816)の専用環境で動かしてるよ  
-・Cloudflare tunnnelを活用しているよ  
+# PCC-RENT パソコン部備品管理システム
 
-## セットアップ方法
-1, Ubuntu ServerにDocker-composeを入れる  
-2, Cloudflare Tunnelをセットアップする  
-3, Releaseから最新バージョンを落とす  
-4, 専用ディレクトリでファイルを解凍  
-5, ./install.sh を実行  
-6, docker ps で動作確認  
-7, 事前に設定したCloudflareのアドレスにアクセスして  
-8, ページが表示されればOK
+## メモ
+**run.py:**  
+PCC-RENTのAPIサーバ本体  
+**dbc.py:**  
+ DB操作用自作ライブラリ   
+**pcc-rent.db:**  
+このシステムの核となる存在。データ喪失から**死守**せよ
 
 ## 開発環境
-MacBook Air 13 M2  
-VSCode  
-Python3.10.11  
-とかいろいろ。
-## 開発者問い合わせ
-Discord: networld4816  
-Twitter (旧X): networld4816
+コンテナエンジン: Docker Engine 26.1.3  
+イメージおよび使用言語: Python3.10  
+Pythonモジュール: req.txt参照  
+
+## 想定動作環境  
+Ubuntu Server 22.04  
+Docker Engine 26.1.3
+
+## インストール  
+新規インストール手順  
+1, https://qiita.com/NeK/items/d9431d5cdfa16dffe6dc に従ってdocker Engineを入れる  
+2, git clone <URL>  
+3, chmod +rx install.sh uninstall.sh reinstall.sh update.sh startup.sh  
+4, ./install.sh  
+5, 必要に応じてCloudflare Tunnnelのコネクタをdockerを用いて生やす  
+6, 動作確認  
+
+## 更新
+更新手順  
+1, "URL"/admin_toolsからデータベースファイルをダウンロード  
+2, docker stop pcc-rent  
+3, git pull  
+4, ./reinstall.sh  
+5, pcc-rentにアクセスして動作確認  

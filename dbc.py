@@ -26,7 +26,7 @@ INIT_SQL_COMMAND_1 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_LOGIN}
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
 
 INIT_SQL_COMMAND_2 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_ITEMS}(
-    number VARCHAR(255) NOT NULL PRIMARY KEY,
+    number INT NOT NULL PRIMARY KEY,
     item_name TEXT,
     explanation TEXT,
     resource TEXT,
@@ -43,7 +43,11 @@ INIT_SQL_COMMAND_3 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.{TABLE_NAME_RENTAL
     rent TEXT,
     deadline TEXT,
     returned TEXT,
-    rental_id VARCHAR(255) NOT NULL PRIMARY KEY
+    rental_id TEXT
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
+
+INIT_SQL_COMMAND_4 = f'''CREATE TABLE IF NOT EXISTS {DB_NAME}.keepalive (
+    keepalive TEXT
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'''
 
 try:
@@ -167,7 +171,7 @@ def create_new_item(conn,number:str,name:str,desc:str,resource:str,rental:str,pi
     data = (number,name,desc,resource,rental,picture,'NoSet')
     #テーブルに登録情報を記録
     sql = f'''
-            INSERT IGNORE INTO {DB_NAME}.{TABLE_NAME_ITEMS} VALUES('{number}','{name}','{desc}','{resource}','{rental}','{picture}','NoSet')
+            INSERT IGNORE INTO {DB_NAME}.{TABLE_NAME_ITEMS} VALUES({number},'{name}','{desc}','{resource}','{rental}','{picture}','NoSet')
         '''
     c.execute(sql)
     #コミット(変更を反映)
@@ -179,7 +183,7 @@ def create_new_item(conn,number:str,name:str,desc:str,resource:str,rental:str,pi
 def delete_item(conn,number:str):
     c = conn.cursor()
     #備品削除
-    c.execute(f'''DELETE FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = '{number}' ''')
+    c.execute(f'''DELETE FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = {number} ''')
     conn.commit()
     c.close()
 
@@ -195,7 +199,7 @@ def search_iteminfo_from_name(conn,name:str):
 #備品を検索(備品番号から)
 def search_iteminfo_from_number(conn,number:str):
     c=conn.cursor()
-    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = '{number}' ''')
+    c.execute(f'''SELECT * FROM {DB_NAME}.{TABLE_NAME_ITEMS} WHERE number = {number} ''')
     res = c.fetchall()
     c.close()
     return res #備品のレコードを配列として返す
@@ -239,10 +243,10 @@ def rent_item(conn,item_number:str,item_name:str,use:str,rentby:str,uname:str):
 
         c.execute(sql)
         sql2 = f'''
-            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental = '{rentby}' WHERE number = '{item_number}'
+            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental = '{rentby}' WHERE number = {item_number}
         '''
         sql3 = f'''
-            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental_id = '{rental_id}' WHERE number = '{item_number}'
+            UPDATE {DB_NAME}.{TABLE_NAME_ITEMS} SET rental_id = '{rental_id}' WHERE number = {item_number}
         '''
         c.execute(sql2)
         c.execute(sql3)
